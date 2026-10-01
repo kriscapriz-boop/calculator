@@ -321,29 +321,31 @@
 
 <script>
     const initialItems = [
-        { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', packsCount: '10', qty: '50', markup: '100', usedQty: '0' },
+        { name: 'Мыльные розы (бутоны)', note: '50', packPrice: '460.00', packsCount: '10', qty: '50', markup: '100', usedQty: '0' },
         { name: 'Упаковочная бумага', note: 'прозрачная', packPrice: '150.00', packsCount: '1', qty: '10', markup: '100', usedQty: '0' },
-        { name: 'Мыльные розы ', note: '', packPrice: '460.00', packsCount: '1', qty: '25', markup: '100', usedQty: '0' },
+        { name: 'Мыльные розы ', note: '25', packPrice: '460.00', packsCount: '1', qty: '25', markup: '100', usedQty: '0' },
         { name: 'Пакет маленький', note: '', packPrice: '25.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Пакет средний', note: '', packPrice: '40.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Пакет прямоугольный', note: '', packPrice: '78.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Коробка шляпная маленькая', note: '', packPrice: '50.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Пакет прямоугольный', note: '', packPrice: '78.00', packsCount: '5', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Коробка шляпная маленькая', note: '', packPrice: '50.00', packsCount: '3', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Коробка шляпная средняя', note: '', packPrice: '70.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Коробка шляпная большая', note: '', packPrice: '100.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Шпажки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Упаковочный пакет', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Лента тонкая', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Лента средняя', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Лента широкая', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Шпажки', note: '', packPrice: '50.00', packsCount: '1', qty: '100', markup: '100', usedQty: '0' },
+        { name: 'Упаковочный пакет', note: '', packPrice: '500.00', packsCount: '1', qty: '100', markup: '100', usedQty: '0' },
+        { name: 'Лента тонкая', note: '', packPrice: '36.00', packsCount: '1', qty: '22', markup: '100', usedQty: '0' },
+        { name: 'Лента средняя', note: '', packPrice: '60.00', packsCount: '1', qty: '22', markup: '100', usedQty: '0' },
+        { name: 'Лента широкая', note: '', packPrice: '140.00', packsCount: '1', qty: '22', markup: '100', usedQty: '0' },
         { name: 'Пакет большой', note: '', packPrice: '55.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Мыльные розы ', note: '', packPrice: '850.00', packsCount: '1', qty: '18', markup: '100', usedQty: '0' },
-        { name: 'Бумага тишью', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Мыльные розы ', note: 'острые', packPrice: '850.00', packsCount: '1.3', qty: '18', markup: '100', usedQty: '0' },
+        { name: 'Бумага тишью', note: '', packPrice: '60.00', packsCount: '1', qty: '10', markup: '100', usedQty: '0' },
         { name: 'Клей пистолетный', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Стразы', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Флористическая проволока', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Бабочки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Корзина плетеная', note: '', packPrice: '100.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Фоамиран', note: '', packPrice: '350.00', packsCount: '3', qty: '1', markup: '100', usedQty: '0' }
+        { name: 'Фоамиран', note: '', packPrice: '350.00', packsCount: '3.75', qty: '10', markup: '100', usedQty: '0' },
+        { name: 'Цветы искусственные', note: 'Малые', packPrice: '45.00', packsCount: '100', qty: '7', markup: '100', usedQty: '0' },
+        { name: 'Гортензия искусственная', note: 'Фиолетовая', packPrice: '70.00', packsCount: '1', qty: '7', markup: '100', usedQty: '0' }
     ];
 
     let items = JSON.parse(JSON.stringify(initialItems));
@@ -372,7 +374,7 @@
                 <td><input type="text" class="cell-input" data-index="${realIndex}" data-field="name" value="${item.name}"></td>
                 <td><input type="text" class="cell-input" data-index="${realIndex}" data-field="note" value="${item.note}"></td>
                 <td><input type="number" step="0.01" class="cell-input" data-index="${realIndex}" data-field="packPrice" value="${item.packPrice}"></td>
-                <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="packsCount" value="${item.packsCount || '1'}"></td>
+                <td><input type="number" step="0.01" class="cell-input" data-index="${realIndex}" data-field="packsCount" value="${item.packsCount || '1'}"></td>
                 <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="qty" value="${item.qty}"></td>
                 <td class="readonly-cell cell-unit-price">0.00</td>
                 <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="markup" value="${item.markup !== undefined ? item.markup : '100'}"></td>
