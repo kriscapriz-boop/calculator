@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пастельно-мятный калькулятор себестоимости</title>
+    <style>
+        :root {
+            --pastel-mint: #e0f2f1;
+            --mint-hover: #b2dfdb;
+            --mint-border: #80cbd3;
+            --mint-header: #4db6ac;
+            --text-main: #264653;
+            --bg-page: #f4fbfb;
+            --editable-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            margin: 24px;
+            color: var(--text-main);
+        }
+        
+        .header-card {
+            background: #ffffff;
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(77, 182, 172, 0.12);
+            margin-bottom: 24px;
+            border-left: 6px solid var(--mint-header);
+        }
+
+        h1 {
+            color: var(--text-main);
+            margin: 0 0 6px 0;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #607d8b;
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--pastel-mint);
+        }
+
+        th {
+            background-color: var(--pastel-mint);
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background-color: #fafefe;
+        }
+
+        /* Редактируемые белые ячейки с пастельной рамкой */
+        td[contenteditable="true"] {
+            background-color: #fbfdfe;
+            border: 1px dashed var(--mint-border);
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        td[contenteditable="true"]:focus {
+            background-color: #ffffff;
+            border: 1.5px solid var(--mint-header);
+            box-shadow: 0 0 0 3px rgba(77, 182, 172, 0.2);
+        }
+
+        .number-col {
+            text-align: right;
+        }
+
+        /* Вычисляемые поля (серые/автоматические) */
+        .auto-calc {
+            background-color: var(--pastel-mint);
+            font-weight: 600;
+            color: var(--text-main);
+            border-radius: 6px;
+        }
+
+        .total-row {
+            background-color: var(--pastel-mint);
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .total-row td {
+            border-top: 2px solid var(--mint-border);
+        }
+
+        .btn-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add { 
+            background-color: var(--mint-header); 
+            color: white; 
+            box-shadow: 0 2px 8px rgba(77, 182, 172, 0.3);
+        }
+        .btn-add:hover { 
+            background-color: #388e3c; 
+            background-color: #39a096;
+            transform: translateY(-1px);
+        }
+
+        .btn-reset { 
+            background-color: #b0bec5; 
+            color: white; 
+        }
+        .btn-reset:hover { 
+            background-color: #90a4ae; 
+        }
+
+        .btn-delete { 
+            background-color: #ef9a9a; 
+            color: #78909c;
+            color: #c62828;
+            padding: 5px 10px; 
+            font-size: 0.8em; 
+            border-radius: 6px;
+            background: #ffebee;
+        }
+        .btn-delete:hover { 
+            background-color: #e57373; 
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-card">
+        <h1>Калькулятор себестоимости</h1>
+        <p class="subtitle">Пастельный мятный стиль. Вводите стоимость пачки/упаковки и кол-во штук — цена за 1 шт посчитается автоматически.</p>
+    </div>
+
+    <table id="calcTable">
+        <thead>
+            <tr>
+                <th style="width: 4%;">№</th>
+                <th style="width: 28%;">Наименование</th>
+                <th style="width: 18%;">Примечание</th>
+                <th style="width: 15%;" class="number-col">Цена пачки/коробки (руб)</th>
+                <th style="width: 12%;" class="number-col">Кол-во в пачке (шт)</th>
+                <th style="width: 10%;" class="number-col">Цена за 1 шт (авто)</th>
+                <th style="width: 10%;" class="number-col">Итого (руб)</th>
+                <th style="width: 3%;"></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Пример: 460 рублей за коробку из 50 роз -->
+            <tr>
+                <td class="row-num">1</td>
+                <td contenteditable="true" class="cell-name">Мыльные розы (бутоны)</td>
+                <td contenteditable="true" class="cell-note">Коробка красных роз</td>
+                <td contenteditable="true" class="number-col cell-pack-price">460.00</td>
+                <td contenteditable="true" class="number-col cell-qty">50</td>
+                <td class="number-col auto-calc cell-unit-price">9.20</td>
+                <td class="number-col auto-calc cell-total">460.00</td>
+                <td><button class="btn-delete" onclick="deleteRow(this)">✕</button></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="6" style="text-align: right;">ОБЩАЯ СУММА ЗАКУПКИ:</td>
+                <td class="number-col" id="grandTotal">0.00 руб.</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="btn-container">
+        <button class="btn-add" onclick="addRow()">+ Добавить позицию</button>
+        <button class="btn-reset" onclick="resetToDefault()">Сбросить данные</button>
+    </div>
+
+    <script>
+        document.getElementById('tableBody').addEventListener('input', calculateTotals);
+
+        function calculateTotals() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            let grandTotal = 0;
+
+            rows.forEach((row, index) => {
+                row.querySelector('.row-num').innerText = index + 1;
+
+                // Получаем введенную цену упаковки и количество штук
+                const packPriceText = row.querySelector('.cell-pack-price').innerText.replace(',', '.');
+                const qtyText = row.querySelector('.cell-qty').innerText.replace(',', '.');
+
+                const packPrice = parseFloat(packPriceText) || 0;
+                const qty = parseFloat(qtyText) || 0;
+
+                // Автоматический расчет цены за 1 штуку
+                const unitPrice = qty > 0 ? (packPrice / qty) : 0;
+                row.querySelector('.cell-unit-price').innerText = unitPrice.toFixed(2);
+
+                // Итого по позиции
+                const total = packPrice;
+                row.querySelector('.cell-total').innerText = total.toFixed(2);
+
+                grandTotal += total;
+            });
+
+            document.getElementById('grandTotal').innerText = grandTotal.toFixed(2) + " руб.";
+            saveToStorage();
+        }
+
+        function addRow() {
+            const tbody = document.getElementById('tableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td class="row-num"></td>
+                <td contenteditable="true" class="cell-name">Новый материал</td>
+                <td contenteditable="true" class="cell-note">Упаковка/штуки</td>
+                <td contenteditable="true" class="number-col cell-pack-price">0.00</td>
+                <td contenteditable="true" class="number-col cell-qty">1</td>
+                <td class="number-col auto-calc cell-unit-price">0.00</td>
+                <td class="number-col auto-calc cell-total">0.00</td>
+                <td><button class="btn-delete" onclick="deleteRow(this)">✕</button></td>
+            `;
+            tbody.appendChild(newRow);
+            calculateTotals();
+        }
+
+        function deleteRow(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+            calculateTotals();
+        }
+
+        function saveToStorage() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            const data = [];
+            rows.forEach(row => {
+                data.push({
+                    name: row.querySelector('.cell-name').innerText,
+                    note: row.querySelector('.cell-note').innerText,
+                    packPrice: row.querySelector('.cell-pack-price').innerText,
+                    qty: row.querySelector('.cell-qty').innerText
+                });
+            });
+            localStorage.setItem('pastelMintCalculatorData', JSON.stringify(data));
+        }
+
+        function loadFromStorage() {
+            const savedData = localStorage.getItem('pastelMintCalculatorData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                if (data.length > 0) {
+                    const tbody = document.getElementById('tableBody');
+                    tbody.innerHTML = '';
+                    data.forEach(item => {
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                            <td class="row-num"></td>
+                            <td contenteditable="true" class="cell-name">${item.name}</td>
+                            <td contenteditable="true" class="cell-note">${item.note || ''}</td>
+                            <td contenteditable="true" class="number-col cell-pack-price">${item.packPrice || '0.00'}</td>
+                            <td contenteditable="true" class="number-col cell-qty">${item.qty || '1'}</td>
+                            <td class="number-col auto-calc cell-unit-price">0.00</td>
+                            <td class="number-col auto-calc cell-total">0.00</td>
+                            <td><button class="btn-delete" onclick="deleteRow(this)">✕</button></td>
+                        `;
+                        tbody.appendChild(newRow);
+                    });
+                }
+            }
+            calculateTotals();
+        }
+
+        function resetToDefault() {
+            if (confirm("Вернуть начальную строку роз за 460 руб?")) {
+                localStorage.removeItem('pastelMintCalculatorData');
+                location.reload();
+            }
+        }
+
+        window.onload = loadFromStorage;
+    </script>
+</body>
+</html>
