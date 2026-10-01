@@ -173,6 +173,23 @@
             background: var(--primary-light);
         }
 
+        .btn-danger {
+            background: #ffebee;
+            color: #c62828;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: #e57373;
+            color: #ffffff;
+        }
+
         .form-row {
             display: flex;
             gap: 12px;
@@ -187,6 +204,14 @@
         .search-box input {
             width: 100%;
             padding: 10px;
+        }
+
+        .add-item-bar {
+            margin-top: 15px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
         }
     </style>
 </head>
@@ -272,7 +297,7 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 18%;">Наименование</th>
+                    <th style="width: 16%;">Наименование</th>
                     <th style="width: 8%;">Заметка</th>
                     <th style="width: 9%;">Цена пачки</th>
                     <th style="width: 6%;">Кол-во пачек</th>
@@ -281,16 +306,21 @@
                     <th style="width: 7%;">Наценка %</th>
                     <th style="width: 9%;">Цена продажи</th>
                     <th style="width: 8%;">Израсходовано (шт.)</th>
-                    <th style="width: 20%;">Себестоимость списания</th>
+                    <th style="width: 15%;">Себестоимость списания</th>
+                    <th style="width: 4%;"></th>
                 </tr>
             </thead>
             <tbody id="inventoryTableBody"></tbody>
         </table>
+
+        <div class="add-item-bar">
+            <button class="btn" onclick="addNewItem()">+ Добавить позицию на склад</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const items = [
+    const initialItems = [
         { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', packsCount: '1', qty: '50', markup: '100', usedQty: '0' },
         { name: 'Упаковочная бумага', note: '', packPrice: '150.00', packsCount: '1', qty: '10', markup: '100', usedQty: '0' },
         { name: 'Мыльные розы ', note: '', packPrice: '460.00', packsCount: '1', qty: '25', markup: '100', usedQty: '0' },
@@ -314,7 +344,9 @@
         { name: 'Бабочки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' }
     ];
 
+    let items = JSON.parse(JSON.stringify(initialItems));
     const salesHistory = [];
+    let currentQuery = '';
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -324,38 +356,60 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    function renderInventory(data = items) {
+    function renderInventory(data = null) {
         const tbody = document.getElementById('inventoryTableBody');
         tbody.innerHTML = '';
 
-        data.forEach((item, index) => {
-            const packPrice = parseFloat(item.packPrice) || 0;
-            const qty = parseFloat(item.qty) || 0;
-            const usedQty = parseFloat(item.usedQty) || 0;
-            const markup = parseFloat(item.markup) || 0;
+        const list = data || items;
 
-            const unitPrice = qty > 0 ? (packPrice / qty) : 0;
-            const retailPrice = unitPrice * (1 + markup / 100);
-            const rowCost = unitPrice * usedQty;
-
+        list.forEach((item) => {
+            const realIndex = items.indexOf(item);
             const tr = document.createElement('tr');
+            tr.setAttribute('data-row-index', realIndex);
             tr.innerHTML = `
-                <td><input type="text" class="cell-input" data-index="${index}" data-field="name" value="${item.name}"></td>
-                <td><input type="text" class="cell-input" data-index="${index}" data-field="note" value="${item.note}"></td>
-                <td><input type="number" step="0.01" class="cell-input" data-index="${index}" data-field="packPrice" value="${item.packPrice}"></td>
-                <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="packsCount" value="${item.packsCount || '1'}"></td>
-                <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="qty" value="${item.qty}"></td>
-                <td class="readonly-cell">${unitPrice.toFixed(2)}</td>
-                <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="markup" value="${item.markup !== undefined ? item.markup : '100'}"></td>
-                <td class="readonly-cell" style="color: var(--primary); font-weight: 600;">${retailPrice.toFixed(2)}</td>
-                <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="usedQty" value="${item.usedQty}"></td>
-                <td class="readonly-cell">${rowCost.toFixed(2)} руб.</td>
+                <td><input type="text" class="cell-input" data-index="${realIndex}" data-field="name" value="${item.name}"></td>
+                <td><input type="text" class="cell-input" data-index="${realIndex}" data-field="note" value="${item.note}"></td>
+                <td><input type="number" step="0.01" class="cell-input" data-index="${realIndex}" data-field="packPrice" value="${item.packPrice}"></td>
+                <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="packsCount" value="${item.packsCount || '1'}"></td>
+                <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="qty" value="${item.qty}"></td>
+                <td class="readonly-cell cell-unit-price">0.00</td>
+                <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="markup" value="${item.markup !== undefined ? item.markup : '100'}"></td>
+                <td class="readonly-cell cell-retail-price" style="color: var(--primary); font-weight: 600;">0.00</td>
+                <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="usedQty" value="${item.usedQty}"></td>
+                <td class="readonly-cell cell-row-cost">0.00 руб.</td>
+                <td><button class="btn-danger" onclick="deleteItem(${realIndex})" title="Удалить позицию">✕</button></td>
             `;
             tbody.appendChild(tr);
+            recalcRow(realIndex);
         });
 
         populateSelectOptions();
         updateDashboard();
+    }
+
+    // Пересчёт одной строки по data-index, без пересоздания элементов
+    function recalcRow(index) {
+        const item = items[index];
+        if (!item) return;
+        const row = document.querySelector(`#inventoryTableBody tr[data-row-index="${index}"]`);
+        if (!row) return;
+
+        const packPrice = parseFloat(item.packPrice) || 0;
+        const qty = parseFloat(item.qty) || 0;
+        const usedQty = parseFloat(item.usedQty) || 0;
+        const markup = parseFloat(item.markup) || 0;
+
+        const unitPrice = qty > 0 ? (packPrice / qty) : 0;
+        const retailPrice = unitPrice * (1 + markup / 100);
+        const rowCost = unitPrice * usedQty;
+
+        const unitCell = row.querySelector('.cell-unit-price');
+        const retailCell = row.querySelector('.cell-retail-price');
+        const costCell = row.querySelector('.cell-row-cost');
+
+        if (unitCell) unitCell.textContent = unitPrice.toFixed(2);
+        if (retailCell) retailCell.textContent = retailPrice.toFixed(2);
+        if (costCell) costCell.textContent = rowCost.toFixed(2) + ' руб.';
     }
 
     function populateSelectOptions() {
@@ -422,7 +476,7 @@
         });
 
         renderSalesTable();
-        renderInventory();
+        applySearch();
         
         document.getElementById('sale-name').value = '';
         document.getElementById('sale-price').value = '';
@@ -467,20 +521,68 @@
         document.getElementById('dash-inventory').textContent = totalInventoryValue.toFixed(2) + ' руб.';
     }
 
-    document.addEventListener('input', (e) => {
-        if (e.target.classList.contains('cell-input')) {
-            const index = e.target.getAttribute('data-index');
-            const field = e.target.getAttribute('data-field');
-            items[index][field] = e.target.value;
+    function addNewItem() {
+        items.push({
+            name: 'Новая позиция',
+            note: '',
+            packPrice: '0.00',
+            packsCount: '1',
+            qty: '1',
+            markup: '100',
+            usedQty: '0'
+        });
+        applySearch();
+        updateDashboard();
 
-            renderInventory();
+        const rows = document.querySelectorAll('#inventoryTableBody tr');
+        if (rows.length > 0) {
+            const lastRow = rows[rows.length - 1];
+            const input = lastRow.querySelector('input[data-field="name"]');
+            if (input) {
+                input.focus();
+                input.select();
+            }
         }
+    }
+
+    function deleteItem(index) {
+        if (!confirm(`Удалить позицию "${items[index].name}"?`)) return;
+        items.splice(index, 1);
+        applySearch();
+        updateDashboard();
+    }
+
+    function applySearch() {
+        if (!currentQuery) {
+            renderInventory();
+            return;
+        }
+        const filtered = items.filter(item => item.name.toLowerCase().includes(currentQuery));
+        renderInventory(filtered);
+    }
+
+    // ВВОД: обновляем только данные и автоколонки — НЕ перестраиваем таблицу
+    document.addEventListener('input', (e) => {
+        if (!e.target.classList.contains('cell-input')) return;
+
+        const index = e.target.getAttribute('data-index');
+        const field = e.target.getAttribute('data-field');
+        if (index === null || !field) return;
+
+        items[index][field] = e.target.value;
+        recalcRow(parseInt(index));
+    });
+
+    // CHANGE: когда поле теряет фокус — делаем полный пересчёт (селекты, дашборд)
+    document.addEventListener('change', (e) => {
+        if (!e.target.classList.contains('cell-input')) return;
+        populateSelectOptions();
+        updateDashboard();
     });
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const filtered = items.filter(item => item.name.toLowerCase().includes(query));
-        renderInventory(filtered);
+        currentQuery = e.target.value.toLowerCase();
+        applySearch();
     });
 
     renderInventory();
