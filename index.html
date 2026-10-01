@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор материалов и себестоимости</title>
+    <title>Учет материалов и расчет себестоимости</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -14,7 +14,7 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             background: #ffffff;
             padding: 24px;
@@ -55,16 +55,16 @@
         }
 
         th, td {
-            padding: 10px 12px;
+            padding: 10px 8px;
             text-align: left;
             border-bottom: 1px solid #e1e4e8;
+            font-size: 14px;
         }
 
         th {
             background-color: #f8f9fa;
             font-weight: 600;
             color: #555;
-            font-size: 14px;
         }
 
         td input {
@@ -131,13 +131,14 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 30%;">Наименование</th>
-                <th style="width: 15%;">Заметка</th>
-                <th style="width: 12%;">Цена пачки (руб.)</th>
-                <th style="width: 10%;">Кол-во в пачке</th>
-                <th style="width: 11%;">Цена за 1 шт.</th>
-                <th style="width: 11%;">Израсходовано</th>
-                <th style="width: 11%;">Себестоимость</th>
+                <th style="width: 25%;">Наименование</th>
+                <th style="width: 10%;">Заметка</th>
+                <th style="width: 10%;">Цена пачки</th>
+                <th style="width: 9%;">Кол-во пачек</th>
+                <th style="width: 10%;">Шт. в пачке</th>
+                <th style="width: 10%;">Цена за 1 шт.</th>
+                <th style="width: 12%;">Израсходовано (шт.)</th>
+                <th style="width: 14%;">Себестоимость</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -158,29 +159,29 @@
 </div>
 
 <script>
-    // Массив данных о материалах
+    // Массив данных о материалах с добавленным полем packsCount (Кол-во пачек)
     const items = [
-        { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', qty: '50', usedQty: '0' },
-        { name: 'Упаковочная бумага', note: '', packPrice: '150.00', qty: '10', usedQty: '0' },
-        { name: 'Мыльные розы ', note: '', packPrice: '460.00', qty: '25', usedQty: '0' },
-        { name: 'Пакет маленький', note: '', packPrice: '25.00', qty: '1', usedQty: '0' },
-        { name: 'Пакет средний', note: '', packPrice: '40.00', qty: '1', usedQty: '0' },
-        { name: 'Пакет прямоугольный', note: '', packPrice: '78.00', qty: '1', usedQty: '0' },
-        { name: 'Коробка шляпная маленькая', note: '', packPrice: '50.00', qty: '1', usedQty: '0' },
-        { name: 'Коробка шляпная средняя', note: '', packPrice: '70.00', qty: '1', usedQty: '0' },
-        { name: 'Коробка шляпная большая', note: '', packPrice: '100.00', qty: '1', usedQty: '0' },
-        { name: 'Шпажки', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Упаковочный пакет', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Лента тонкая', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Лента средняя', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Лента широкая', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Пакет большой', note: '', packPrice: '55.00', qty: '1', usedQty: '0' },
-        { name: 'Мыльные розы ', note: '', packPrice: '850.00', qty: '18', usedQty: '0' },
-        { name: 'Бумага тишью', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Клей пистолетный', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Стразы', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Флористическая проволока', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
-        { name: 'Бабочки', note: '', packPrice: '0.00', qty: '1', usedQty: '0' }
+        { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', packsCount: '1', qty: '50', usedQty: '0' },
+        { name: 'Упаковочная бумага', note: '', packPrice: '150.00', packsCount: '1', qty: '10', usedQty: '0' },
+        { name: 'Мыльные розы ', note: '', packPrice: '460.00', packsCount: '1', qty: '25', usedQty: '0' },
+        { name: 'Пакет маленький', note: '', packPrice: '25.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Пакет средний', note: '', packPrice: '40.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Пакет прямоугольный', note: '', packPrice: '78.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Коробка шляпная маленькая', note: '', packPrice: '50.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Коробка шляпная средняя', note: '', packPrice: '70.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Коробка шляпная большая', note: '', packPrice: '100.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Шпажки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Упаковочный пакет', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Лента тонкая', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Лента средняя', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Лента широкая', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Пакет большой', note: '', packPrice: '55.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Мыльные розы ', note: '', packPrice: '850.00', packsCount: '1', qty: '18', usedQty: '0' },
+        { name: 'Бумага тишью', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Клей пистолетный', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Стразы', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Флористическая проволока', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' },
+        { name: 'Бабочки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' }
     ];
 
     let isEditing = false;
@@ -203,6 +204,7 @@
                 <td><input type="text" class="cell-input" data-index="${index}" data-field="name" value="${item.name}"></td>
                 <td><input type="text" class="cell-input" data-index="${index}" data-field="note" value="${item.note}"></td>
                 <td><input type="number" step="0.01" class="cell-input" data-index="${index}" data-field="packPrice" value="${item.packPrice}"></td>
+                <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="packsCount" value="${item.packsCount || '1'}"></td>
                 <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="qty" value="${item.qty}"></td>
                 <td class="readonly-cell" id="unit-price-${index}">${unitPrice.toFixed(2)}</td>
                 <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="usedQty" value="${item.usedQty}"></td>
@@ -214,7 +216,7 @@
         calculateTotals();
     }
 
-    // Слушатель ввода изменений в ячейках
+    // Слушатель ввода изменений
     document.addEventListener('input', (e) => {
         if (e.target.classList.contains('cell-input')) {
             isEditing = true;
@@ -231,7 +233,7 @@
         }
     });
 
-    // Пересчет цены за 1 шт. и себестоимости строки
+    // Расчет отдельной строки
     function updateRowCalculations(index) {
         const item = items[index];
         const packPrice = parseFloat(item.packPrice) || 0;
@@ -248,20 +250,21 @@
         if (rowCostEl) rowCostEl.textContent = rowCost.toFixed(2);
     }
 
-    // Функция вычисления суммарных итогов
+    // Расчет итогов по всем позициям
     function calculateTotals() {
         let totalCost = 0;
         let totalInventory = 0;
 
         items.forEach(item => {
             const packPrice = parseFloat(item.packPrice) || 0;
+            const packsCount = parseFloat(item.packsCount) || 1;
             const qty = parseFloat(item.qty) || 0;
             const usedQty = parseFloat(item.usedQty) || 0;
 
             const unitPrice = qty > 0 ? (packPrice / qty) : 0;
 
             totalCost += unitPrice * usedQty;
-            totalInventory += packPrice;
+            totalInventory += packPrice * packsCount;
         });
 
         const totalCostEl = document.getElementById('total-cost');
@@ -271,14 +274,14 @@
         if (totalInventoryEl) totalInventoryEl.textContent = totalInventory.toFixed(2) + ' руб.';
     }
 
-    // Реализация поиска
+    // Поиск
     document.getElementById('searchInput').addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
         const filteredItems = items.filter(item => item.name.toLowerCase().includes(query));
         renderTable(filteredItems);
     });
 
-    // Первоначальная инициализация
+    // Инициализация таблицы
     renderTable();
 </script>
 
