@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Облачный калькулятор, склад и букеты</title>
+    <title>Облачный калькулятор, склад и продажи</title>
     <style>
         :root {
             --pastel-mint: #e0f2f1;
@@ -12,7 +12,6 @@
             --mint-header: #4db6ac;
             --text-main: #264653;
             --bg-page: #f4fbfb;
-            --accent-pink: #f8bbd0;
             --btn-pink: #ec407a;
         }
 
@@ -114,15 +113,13 @@
         .total-row { background-color: var(--pastel-mint); font-weight: bold; font-size: 1em; }
         .total-row td { border-top: 2px solid var(--mint-border); }
 
-        .btn-container { margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn-container { margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88em; transition: all 0.2s ease; }
         
         .btn-add { background-color: var(--mint-header); color: white; }
         .btn-add:hover { background-color: #39a096; }
         .btn-pink { background-color: var(--btn-pink); color: white; box-shadow: 0 2px 8px rgba(236, 64, 122, 0.3); }
         .btn-pink:hover { background-color: #d81b60; }
-        .btn-reset { background-color: #b0bec5; color: white; }
-        .btn-reset:hover { background-color: #90a4ae; }
         .btn-delete { background-color: #ffebee; color: #c62828; padding: 5px 10px; font-size: 0.8em; border-radius: 6px; }
         .btn-delete:hover { background-color: #e57373; color: white; }
 
@@ -140,24 +137,27 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 12px;
+            flex-wrap: wrap;
         }
 
-        .bouquet-cost {
-            font-weight: 700;
-            color: #d81b60;
-            font-size: 1.1em;
-            background: #fce4ec;
-            padding: 6px 12px;
-            border-radius: 8px;
+        .price-summary {
+            display: flex;
+            gap: 10px;
+            font-size: 0.88em;
+            font-weight: 600;
         }
+
+        .badge-cost { background: #fce4ec; color: #c2185b; padding: 6px 10px; border-radius: 8px; }
+        .badge-price { background: #e8f5e9; color: #2e7d32; padding: 6px 10px; border-radius: 8px; }
+        .badge-profit { background: #e0f2f1; color: #00695c; padding: 6px 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
     <div class="header-card">
         <div>
-            <h1>Облачный калькулятор, склад и букеты</h1>
-            <p class="subtitle">Учет материалов, составление рецептов букетов и мгновенное списание со склада.</p>
+            <h1>Облачный калькулятор, склад и продажи</h1>
+            <p class="subtitle">Учет материалов, составление рецептов букетов, списание и журнал продаж.</p>
         </div>
         <div id="status" class="sync-status">🟢 Облако подключено</div>
     </div>
@@ -180,7 +180,7 @@
 
     <!-- БЛОК 1: Собрать букет -->
     <div class="section-card">
-        <h2>💐 Состав букетов и списание</h2>
+        <h2>💐 Состав букетов, ценообразование и списание</h2>
         <div id="bouquetsContainer"></div>
         <button class="btn-pink" onclick="addBouquet()">+ Создать новый букет</button>
     </div>
@@ -220,8 +220,26 @@
 
         <div class="btn-container">
             <button class="btn-add" onclick="addRow()">+ Добавить материал на склад</button>
-            <button class="btn-reset" onclick="resetToDefault()">Сбросить всё</button>
         </div>
+    </div>
+
+    <!-- БЛОК 3: Журнал продаж -->
+    <div class="section-card">
+        <h2>📜 Журнал продаж</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 15%;">Дата / Время</th>
+                    <th style="width: 25%;">Наименование букета</th>
+                    <th style="width: 10%;" class="number-col">Кол-во</th>
+                    <th style="width: 15%;" class="number-col">Сумма продажи</th>
+                    <th style="width: 35%;">Списанные материалы</th>
+                </tr>
+            </thead>
+            <tbody id="salesLogBody">
+                <tr><td colspan="5" style="text-align: center; color: #90a4ae;">История продаж пока пуста</td></tr>
+            </tbody>
+        </table>
     </div>
 
     <!-- Подключаем Firebase SDK -->
@@ -242,13 +260,39 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const dbRef = ref(db, 'calculator_data_v2');
+        const dbRef = ref(db, 'calculator_data_v3');
 
         let isEditing = false;
         let saveTimeout = null;
         let bouquetsData = [];
+        let salesLogData = [];
 
-        // Сохранение при вводе
+        // Дефолтные 21 позиция
+        const defaultMaterials = [
+            { name: 'Позиция 1', note: '', packPrice: '460.00', qty: '50', usedQty: '0' },
+            { name: 'Позиция 2', note: '', packPrice: '150.00', qty: '10', usedQty: '0' },
+            { name: 'Позиция 3', note: '', packPrice: '460.00', qty: '25', usedQty: '0' },
+            { name: 'Позиция 4', note: '', packPrice: '25.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 5', note: '', packPrice: '40.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 6', note: '', packPrice: '78.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 7', note: '', packPrice: '50.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 8', note: '', packPrice: '70.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 9', note: '', packPrice: '100.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 10', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 11', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 12', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 13', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 14', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 15', note: '', packPrice: '55.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 16', note: '', packPrice: '850.00', qty: '18', usedQty: '0' },
+            { name: 'Позиция 17', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 18', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 19', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 20', note: '', packPrice: '0.00', qty: '1', usedQty: '0' },
+            { name: 'Позиция 21', note: '', packPrice: '0.00', qty: '1', usedQty: '0' }
+        ];
+
+        // Слушаем вводы
         document.addEventListener('input', (e) => {
             if (e.target.classList.contains('cell-input')) {
                 isEditing = true;
@@ -270,17 +314,19 @@
             if (data) {
                 renderTableFromData(data.materials || []);
                 bouquetsData = data.bouquets || [];
+                salesLogData = data.salesLog || [];
                 renderBouquets();
+                renderSalesLog();
             } else {
-                renderTableFromData([
-                    { name: 'Мыльные розы (бутоны)', note: 'Красные', packPrice: '460.00', qty: '50', usedQty: '0' },
-                    { name: 'Упаковочная бумага', note: 'Рулон', packPrice: '150.00', qty: '10', usedQty: '0' }
-                ]);
+                renderTableFromData(defaultMaterials);
                 bouquetsData = [{
-                    name: 'Букет "Нежность"',
-                    items: [{ materialName: 'Мыльные розы (бутоны)', qty: 7 }, { materialName: 'Упаковочная бумага', qty: 1 }]
+                    name: 'Букет "Стандарт"',
+                    markup: 100,
+                    items: [{ materialName: 'Позиция 1', qty: 5 }]
                 }];
+                salesLogData = [];
                 renderBouquets();
+                renderSalesLog();
             }
         });
 
@@ -345,16 +391,26 @@
         function updateBouquetsCost() {
             const cards = document.querySelectorAll('.bouquet-card');
             cards.forEach(card => {
-                let totalCost = 0;
+                let costPrice = 0;
                 const itemRows = card.querySelectorAll('.b-item-row');
                 itemRows.forEach(row => {
                     const matName = row.querySelector('.b-mat-select').value;
                     const qty = parseFloat(row.querySelector('.b-qty-input').value) || 0;
                     const price = getMaterialPrice(matName);
-                    totalCost += price * qty;
+                    costPrice += price * qty;
                 });
-                const costBadge = card.querySelector('.bouquet-cost');
-                if (costBadge) costBadge.innerText = 'Себестоимость: ' + totalCost.toFixed(2) + ' руб.';
+
+                const markup = parseFloat(card.querySelector('.b-markup-input').value) || 0;
+                const retailPrice = costPrice * (1 + markup / 100);
+                const profit = retailPrice - costPrice;
+
+                const costBadge = card.querySelector('.badge-cost');
+                const priceBadge = card.querySelector('.badge-price');
+                const profitBadge = card.querySelector('.badge-profit');
+
+                if (costBadge) costBadge.innerText = 'Себестоимость: ' + costPrice.toFixed(2) + ' руб.';
+                if (priceBadge) priceBadge.innerText = 'Продажа: ' + retailPrice.toFixed(2) + ' руб.';
+                if (profitBadge) profitBadge.innerText = 'Прибыль: ' + profit.toFixed(2) + ' руб.';
             });
         }
 
@@ -423,8 +479,18 @@
 
                 card.innerHTML = `
                     <div class="bouquet-header">
-                        <input type="text" class="cell-input b-name-input" style="font-weight: bold; font-size: 1.1em; width: 60%;" value="${b.name || 'Новый букет'}">
-                        <span class="bouquet-cost">Себестоимость: 0.00 руб.</span>
+                        <input type="text" class="cell-input b-name-input" style="font-weight: bold; font-size: 1.1em; width: 40%;" value="${b.name || 'Новый букет'}">
+                        
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 0.85em; font-weight: 600;">Наценка %:</span>
+                            <input type="text" class="cell-input number-col b-markup-input" style="width: 70px;" value="${b.markup !== undefined ? b.markup : 100}">
+                        </div>
+
+                        <div class="price-summary">
+                            <span class="badge-cost">Себестоимость: 0.00 руб.</span>
+                            <span class="badge-price">Продажа: 0.00 руб.</span>
+                            <span class="badge-profit">Прибыль: 0.00 руб.</span>
+                        </div>
                     </div>
                     <table style="width: 100%; margin-bottom: 8px;">
                         <thead>
@@ -438,8 +504,14 @@
                     </table>
                     <div class="btn-container">
                         <button class="btn-add" style="padding: 6px 12px; font-size: 0.8em;" onclick="addBouquetItem(${bIndex})">+ Состав</button>
-                        <button class="btn-pink" onclick="deductBouquet(${bIndex})">🚀 Списать 1 букет со склада</button>
-                        <button class="btn-delete" style="margin-left: auto;" onclick="deleteBouquet(${bIndex})">Удалить букет</button>
+                        
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <span style="font-size: 0.85em; font-weight: 600;">Кол-во:</span>
+                            <input type="text" id="deductQty_${bIndex}" class="cell-input number-col" style="width: 60px;" value="1">
+                            <button class="btn-pink" onclick="deductBouquet(${bIndex})">🚀 Списать букет(ы)</button>
+                        </div>
+
+                        <button class="btn-delete" onclick="deleteBouquet(${bIndex})">Удалить букет</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -448,36 +520,86 @@
             updateBouquetsCost();
         }
 
+        function renderSalesLog() {
+            const tbody = document.getElementById('salesLogBody');
+            if (salesLogData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #90a4ae;">История продаж пока пуста</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            salesLogData.slice().reverse().forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.date}</td>
+                    <td><b>${log.bouquetName}</b></td>
+                    <td class="number-col">${log.count} шт</td>
+                    <td class="number-col" style="color: #2e7d32; font-weight: 700;">${log.totalSum.toFixed(2)} руб.</td>
+                    <td style="font-size: 0.85em; color: #546e7a;">${log.materials}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
         window.deductBouquet = function(bIndex) {
             const card = document.querySelectorAll('.bouquet-card')[bIndex];
-            const itemRows = card.querySelectorAll('.b-item-row');
+            const bouquetName = card.querySelector('.b-name-input').value;
+            const countToDeduct = parseFloat(document.getElementById(`deductQty_${bIndex}`).value) || 1;
             
+            let costPrice = 0;
+            let materialsDeductedList = [];
+
+            const itemRows = card.querySelectorAll('.b-item-row');
             itemRows.forEach(row => {
                 const matName = row.querySelector('.b-mat-select').value;
-                const qtyToDeduct = parseFloat(row.querySelector('.b-qty-input').value) || 0;
+                const qtyPerBouquet = parseFloat(row.querySelector('.b-qty-input').value) || 0;
+                const totalQtyDeduct = qtyPerBouquet * countToDeduct;
 
-                // Находим строку на складе и увеличиваем списание
+                const price = getMaterialPrice(matName);
+                costPrice += price * totalQtyDeduct;
+
+                materialsDeductedList.push(`${matName}: ${totalQtyDeduct} шт`);
+
+                // Обновляем склад
                 const tableRows = document.querySelectorAll('#tableBody tr');
                 tableRows.forEach(tRow => {
                     const name = tRow.querySelector('.cell-name').value;
                     if (name === matName) {
                         const usedInput = tRow.querySelector('.cell-used-qty');
                         const currentUsed = parseFloat(usedInput.value) || 0;
-                        usedInput.value = currentUsed + qtyToDeduct;
+                        usedInput.value = currentUsed + totalQtyDeduct;
                     }
                 });
             });
 
+            const markup = parseFloat(card.querySelector('.b-markup-input').value) || 0;
+            const singleRetailPrice = (costPrice / countToDeduct) * (1 + markup / 100);
+            const totalSaleSum = singleRetailPrice * countToDeduct;
+
+            // Формируем лог
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+
+            salesLogData.push({
+                date: dateStr,
+                bouquetName: bouquetName,
+                count: countToDeduct,
+                totalSum: totalSaleSum,
+                materials: materialsDeductedList.join(', ')
+            });
+
             calculateTotals();
+            renderSalesLog();
             saveToCloud();
-            alert('Материалы для букета успешно списаны со склада!');
+            alert(`Успешно списано: ${bouquetName} (${countToDeduct} шт)!\nСумма продажи: ${totalSaleSum.toFixed(2)} руб.`);
         };
 
         window.addBouquet = function() {
             const materials = getMaterialsList();
             bouquetsData.push({
                 name: 'Новый букет',
-                items: [{ materialName: materials[0] || 'Новый материал', qty: 1 }]
+                markup: 100,
+                items: [{ materialName: materials[0] || 'Позиция 1', qty: 1 }]
             });
             renderBouquets();
             saveToCloud();
@@ -507,6 +629,7 @@
             const result = [];
             cards.forEach(card => {
                 const name = card.querySelector('.b-name-input').value;
+                const markup = parseFloat(card.querySelector('.b-markup-input').value) || 0;
                 const items = [];
                 card.querySelectorAll('.b-item-row').forEach(row => {
                     items.push({
@@ -514,7 +637,7 @@
                         qty: parseFloat(row.querySelector('.b-qty-input').value) || 0
                     });
                 });
-                result.push({ name, items });
+                result.push({ name, markup, items });
             });
             return result;
         }
@@ -536,7 +659,8 @@
 
             set(dbRef, {
                 materials: materials,
-                bouquets: currentBouquets
+                bouquets: currentBouquets,
+                salesLog: salesLogData
             });
         }
 
@@ -545,8 +669,8 @@
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
                 <td class="row-num"></td>
-                <td><input type="text" class="cell-input cell-name" value="Новый материал"></td>
-                <td><input type="text" class="cell-input cell-note" value="Упаковка/штуки"></td>
+                <td><input type="text" class="cell-input cell-name" value="Новая позиция"></td>
+                <td><input type="text" class="cell-input cell-note" value=""></td>
                 <td><input type="text" class="cell-input number-col cell-pack-price" value="0.00"></td>
                 <td><input type="text" class="cell-input number-col cell-qty" value="1"></td>
                 <td><span class="number-col auto-calc cell-unit-price">0.00</span></td>
@@ -566,12 +690,6 @@
             calculateTotals();
             renderBouquets();
             saveToCloud();
-        };
-
-        window.resetToDefault = function() {
-            if (confirm("Сбросить базу данных до начального значения?")) {
-                set(dbRef, null);
-            }
         };
     </script>
 </body>
