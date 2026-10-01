@@ -230,6 +230,21 @@
             flex-wrap: wrap;
             align-items: center;
         }
+
+        .recommended-badge {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .recommended-cell {
+            color: #2e7d32;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -287,6 +302,10 @@
                 <button class="btn btn-outline" onclick="addRecipeRow()">+ Добавить компонент</button>
                 <button class="btn" onclick="addSale()">Продать и списать</button>
             </div>
+
+            <div style="margin-top: 12px;">
+                <span class="recommended-badge">💡 Рекомендуемая цена (с наценкой): <span id="recommendedPrice">0.00</span> руб.</span>
+            </div>
         </div>
 
         <h3>История продаж</h3>
@@ -296,6 +315,7 @@
                     <th>Наименование</th>
                     <th>Состав</th>
                     <th>Себестоимость</th>
+                    <th>Рекомендуемая цена</th>
                     <th>Цена продажи</th>
                     <th>Прибыль</th>
                 </tr>
@@ -408,7 +428,6 @@
 
     // ================= Firebase: загрузка данных =================
     onValue(dbRef, (snapshot) => {
-        // Пока пользователь печатает — не перезаписываем его изменения
         if (isEditing) return;
 
         const data = snapshot.val();
@@ -416,7 +435,6 @@
             items = data.items || initialItems;
             salesHistory = data.salesHistory || [];
         } else {
-            // В базе пусто — заливаем стартовый набор
             items = JSON.parse(JSON.stringify(initialItems));
             salesHistory = [];
             set(dbRef, { items, salesHistory });
@@ -534,6 +552,32 @@
         });
     }
 
+    // ================= Рекомендуемая цена =================
+    // Считается как сумма (цена продажи материала с наценкой × кол-во) по всем строкам рецепта
+    function calculateRecommendedPrice() {
+        const rows = document.querySelectorAll('.recipe-row');
+        let recommended = 0;
+        rows.forEach(row => {
+            const materialIdx = row.querySelector('.recipe-material').value;
+            const count = parseFloat(row.querySelector('.recipe-qty').value) || 0;
+            if (materialIdx !== '' && count > 0) {
+                const item = items[materialIdx];
+                if (!item) return;
+                const unitPrice = (parseFloat(item.packPrice) || 0) / (parseFloat(item.qty) || 1);
+                const markup = parseFloat(item.markup) || 0;
+                const retailPrice = unitPrice * (1 + markup / 100);
+                recommended += retailPrice * count;
+            }
+        });
+        return recommended;
+    }
+
+    function updateRecommendedPrice() {
+        const recommended = calculateRecommendedPrice();
+        const el = document.getElementById('recommendedPrice');
+        if (el) el.textContent = recommended.toFixed(2);
+    }
+
     window.addRecipeRow = function() {
         const container = document.getElementById('recipe-items');
         const row = document.createElement('div');
@@ -544,6 +588,7 @@
         `;
         container.appendChild(row);
         populateSelectOptions();
+        updateRecommendedPrice();
     };
 
     window.addSale = function() {
@@ -552,6 +597,7 @@
 
         const rows = document.querySelectorAll('.recipe-row');
         let totalCost = 0;
+        let recommendedPrice = 0;
         let compositionDetails = [];
 
         rows.forEach(row => {
@@ -562,6 +608,10 @@
                 const item = items[materialIdx];
                 const unitPrice = (parseFloat(item.packPrice) || 0) / (parseFloat(item.qty) || 1);
                 const cost = unitPrice * count;
+
+                const markup = parseFloat(item.markup) || 0;
+                const retailPrice = unitPrice * (1 + markup / 100);
+                recommendedPrice += retailPrice * count;
 
                 item.usedQty = (parseFloat(item.usedQty) || 0) + count;
                 totalCost += cost;
@@ -575,6 +625,7 @@
             name: saleName,
             composition: compositionDetails.join(', '),
             cost: totalCost,
+            recommendedPrice: recommendedPrice,
             price: salePrice,
             profit: profit
         });
@@ -592,6 +643,7 @@
             </div>
         `;
         populateSelectOptions();
+        updateRecommendedPrice();
     };
 
     function renderSalesTable() {
@@ -599,16 +651,18 @@
         tbody.innerHTML = '';
 
         if (salesHistory.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">История продаж пока пуста</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">История продаж пока пуста</td></tr>';
             return;
         }
 
         salesHistory.forEach(sale => {
+            const recommended = (sale.recommendedPrice !== undefined) ? sale.recommendedPrice : 0;
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><strong>${sale.name}</strong></td>
                 <td><small>${sale.composition}</small></td>
                 <td>${sale.cost.toFixed(2)} руб.</td>
+                <td class="recommended-cell">${recommended.toFixed(2)} руб.</td>
                 <td>${sale.price.toFixed(2)} руб.</td>
                 <td style="color: var(--primary); font-weight: bold;">${sale.profit.toFixed(2)} руб.</td>
             `;
@@ -677,7 +731,7 @@
         renderInventory(filtered);
     }
 
-    // ВВОД: обновляем только данные и автоколонки — НЕ перестраиваем таблицу
+    // ВВОД в таблице склада: обновляем данные и автоколонки — НЕ перестраиваем таблицу
     document.addEventListener('input', (e) => {
         if (!e.target.classList.contains('cell-input')) return;
 
@@ -701,6 +755,18 @@
     document.getElementById('searchInput').addEventListener('input', (e) => {
         currentQuery = e.target.value.toLowerCase();
         applySearch();
+    });
+
+    // Следим за полями рецепта, чтобы пересчитывать рекомендуемую цену в реальном времени
+    document.getElementById('recipe-items').addEventListener('input', (e) => {
+        if (e.target.classList.contains('recipe-material') || e.target.classList.contains('recipe-qty')) {
+            updateRecommendedPrice();
+        }
+    });
+    document.getElementById('recipe-items').addEventListener('change', (e) => {
+        if (e.target.classList.contains('recipe-material') || e.target.classList.contains('recipe-qty')) {
+            updateRecommendedPrice();
+        }
     });
 </script>
 
