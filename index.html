@@ -298,7 +298,7 @@
             <thead>
                 <tr>
                     <th style="width: 16%;">Наименование</th>
-                    <th style="width: 8%;">Заметка</th>
+                    <th style="width: 12%;">Заметка</th>
                     <th style="width: 9%;">Цена пачки</th>
                     <th style="width: 6%;">Кол-во пачек</th>
                     <th style="width: 7%;">Шт. в пачке</th>
@@ -306,7 +306,7 @@
                     <th style="width: 7%;">Наценка %</th>
                     <th style="width: 9%;">Цена продажи</th>
                     <th style="width: 8%;">Израсходовано (шт.)</th>
-                    <th style="width: 15%;">Себестоимость списания</th>
+                    <th style="width: 11%;">Себестоимость списания</th>
                     <th style="width: 4%;"></th>
                 </tr>
             </thead>
@@ -321,8 +321,8 @@
 
 <script>
     const initialItems = [
-        { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', packsCount: '1', qty: '50', markup: '100', usedQty: '0' },
-        { name: 'Упаковочная бумага', note: '', packPrice: '150.00', packsCount: '1', qty: '10', markup: '100', usedQty: '0' },
+        { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', packsCount: '10', qty: '50', markup: '100', usedQty: '0' },
+        { name: 'Упаковочная бумага', note: 'прозрачная', packPrice: '150.00', packsCount: '1', qty: '10', markup: '100', usedQty: '0' },
         { name: 'Мыльные розы ', note: '', packPrice: '460.00', packsCount: '1', qty: '25', markup: '100', usedQty: '0' },
         { name: 'Пакет маленький', note: '', packPrice: '25.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Пакет средний', note: '', packPrice: '40.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
@@ -341,7 +341,9 @@
         { name: 'Клей пистолетный', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Стразы', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
         { name: 'Флористическая проволока', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Бабочки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' }
+        { name: 'Бабочки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Корзина плетеная', note: '', packPrice: '100.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Фоамиран', note: '', packPrice: '350.00', packsCount: '3', qty: '1', markup: '100', usedQty: '0' }
     ];
 
     let items = JSON.parse(JSON.stringify(initialItems));
