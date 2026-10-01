@@ -26,7 +26,7 @@
         }
 
         .app-container {
-            max-width: 1300px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -297,16 +297,17 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 16%;">Наименование</th>
-                    <th style="width: 12%;">Заметка</th>
-                    <th style="width: 9%;">Цена пачки</th>
-                    <th style="width: 6%;">Кол-во пачек</th>
+                    <th style="width: 15%;">Наименование</th>
+                    <th style="width: 10%;">Заметка</th>
+                    <th style="width: 8%;">Цена пачки</th>
+                    <th style="width: 8%;">Всего штук</th>
                     <th style="width: 7%;">Шт. в пачке</th>
-                    <th style="width: 8%;">Цена за 1 шт.</th>
-                    <th style="width: 7%;">Наценка %</th>
-                    <th style="width: 9%;">Цена продажи</th>
+                    <th style="width: 7%;">Кол-во пачек</th>
+                    <th style="width: 7%;">Цена за 1 шт.</th>
+                    <th style="width: 6%;">Наценка %</th>
+                    <th style="width: 8%;">Цена продажи</th>
                     <th style="width: 8%;">Израсходовано (шт.)</th>
-                    <th style="width: 11%;">Себестоимость списания</th>
+                    <th style="width: 12%;">Себестоимость списания</th>
                     <th style="width: 4%;"></th>
                 </tr>
             </thead>
@@ -321,31 +322,31 @@
 
 <script>
     const initialItems = [
-        { name: 'Мыльные розы (бутоны)', note: '50', packPrice: '460.00', packsCount: '10', qty: '50', markup: '100', usedQty: '0' },
-        { name: 'Упаковочная бумага', note: 'прозрачная', packPrice: '150.00', packsCount: '1', qty: '10', markup: '100', usedQty: '0' },
-        { name: 'Мыльные розы ', note: '25', packPrice: '460.00', packsCount: '1', qty: '25', markup: '100', usedQty: '0' },
-        { name: 'Пакет маленький', note: '', packPrice: '25.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Пакет средний', note: '', packPrice: '40.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Пакет прямоугольный', note: '', packPrice: '78.00', packsCount: '5', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Коробка шляпная маленькая', note: '', packPrice: '50.00', packsCount: '3', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Коробка шляпная средняя', note: '', packPrice: '70.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Коробка шляпная большая', note: '', packPrice: '100.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Шпажки', note: '', packPrice: '50.00', packsCount: '1', qty: '100', markup: '100', usedQty: '0' },
-        { name: 'Упаковочный пакет', note: '', packPrice: '500.00', packsCount: '1', qty: '100', markup: '100', usedQty: '0' },
-        { name: 'Лента тонкая', note: '', packPrice: '36.00', packsCount: '1', qty: '22', markup: '100', usedQty: '0' },
-        { name: 'Лента средняя', note: '', packPrice: '60.00', packsCount: '1', qty: '22', markup: '100', usedQty: '0' },
-        { name: 'Лента широкая', note: '', packPrice: '140.00', packsCount: '1', qty: '22', markup: '100', usedQty: '0' },
-        { name: 'Пакет большой', note: '', packPrice: '55.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Мыльные розы ', note: 'острые', packPrice: '850.00', packsCount: '1.3', qty: '18', markup: '100', usedQty: '0' },
-        { name: 'Бумага тишью', note: '', packPrice: '60.00', packsCount: '1', qty: '10', markup: '100', usedQty: '0' },
-        { name: 'Клей пистолетный', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Стразы', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Флористическая проволока', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Бабочки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Корзина плетеная', note: '', packPrice: '100.00', packsCount: '1', qty: '1', markup: '100', usedQty: '0' },
-        { name: 'Фоамиран', note: '', packPrice: '350.00', packsCount: '3.75', qty: '10', markup: '100', usedQty: '0' },
-        { name: 'Цветы искусственные', note: 'Малые', packPrice: '45.00', packsCount: '100', qty: '7', markup: '100', usedQty: '0' },
-        { name: 'Гортензия искусственная', note: 'Фиолетовая', packPrice: '70.00', packsCount: '1', qty: '7', markup: '100', usedQty: '0' }
+        { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', totalQty: '500', qty: '50', markup: '100', usedQty: '0' },
+        { name: 'Упаковочная бумага', note: 'прозрачная', packPrice: '150.00', totalQty: '10', qty: '10', markup: '100', usedQty: '0' },
+        { name: 'Мыльные розы ', note: '', packPrice: '460.00', totalQty: '25', qty: '25', markup: '100', usedQty: '0' },
+        { name: 'Пакет маленький', note: '', packPrice: '25.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Пакет средний', note: '', packPrice: '40.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Пакет прямоугольный', note: '', packPrice: '78.00', totalQty: '5', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Коробка шляпная маленькая', note: '', packPrice: '50.00', totalQty: '3', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Коробка шляпная средняя', note: '', packPrice: '70.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Коробка шляпная большая', note: '', packPrice: '100.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Шпажки', note: '', packPrice: '50.00', totalQty: '100', qty: '100', markup: '100', usedQty: '0' },
+        { name: 'Упаковочный пакет', note: '', packPrice: '500.00', totalQty: '100', qty: '100', markup: '100', usedQty: '0' },
+        { name: 'Лента тонкая', note: '', packPrice: '36.00', totalQty: '22', qty: '22', markup: '100', usedQty: '0' },
+        { name: 'Лента средняя', note: '', packPrice: '60.00', totalQty: '22', qty: '22', markup: '100', usedQty: '0' },
+        { name: 'Лента широкая', note: '', packPrice: '140.00', totalQty: '22', qty: '22', markup: '100', usedQty: '0' },
+        { name: 'Пакет большой', note: '', packPrice: '55.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Мыльные розы ', note: 'острые', packPrice: '850.00', totalQty: '23', qty: '18', markup: '100', usedQty: '0' },
+        { name: 'Бумага тишью', note: '', packPrice: '60.00', totalQty: '10', qty: '10', markup: '100', usedQty: '0' },
+        { name: 'Клей пистолетный', note: '', packPrice: '0.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Стразы', note: '', packPrice: '0.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Флористическая проволока', note: '', packPrice: '0.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Бабочки', note: '', packPrice: '0.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Корзина плетеная', note: '', packPrice: '100.00', totalQty: '1', qty: '1', markup: '100', usedQty: '0' },
+        { name: 'Фоамиран', note: '', packPrice: '350.00', totalQty: '37.5', qty: '10', markup: '100', usedQty: '0' },
+        { name: 'Цветы искусственные', note: 'Малые', packPrice: '45.00', totalQty: '700', qty: '7', markup: '100', usedQty: '0' },
+        { name: 'Гортензия искусственная', note: 'Фиолетовая', packPrice: '70.00', totalQty: '7', qty: '7', markup: '100', usedQty: '0' }
     ];
 
     let items = JSON.parse(JSON.stringify(initialItems));
@@ -374,8 +375,9 @@
                 <td><input type="text" class="cell-input" data-index="${realIndex}" data-field="name" value="${item.name}"></td>
                 <td><input type="text" class="cell-input" data-index="${realIndex}" data-field="note" value="${item.note}"></td>
                 <td><input type="number" step="0.01" class="cell-input" data-index="${realIndex}" data-field="packPrice" value="${item.packPrice}"></td>
-                <td><input type="number" step="0.01" class="cell-input" data-index="${realIndex}" data-field="packsCount" value="${item.packsCount || '1'}"></td>
+                <td><input type="number" step="0.01" class="cell-input" data-index="${realIndex}" data-field="totalQty" value="${item.totalQty}"></td>
                 <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="qty" value="${item.qty}"></td>
+                <td class="readonly-cell cell-packs-count">0.00</td>
                 <td class="readonly-cell cell-unit-price">0.00</td>
                 <td><input type="number" step="1" class="cell-input" data-index="${realIndex}" data-field="markup" value="${item.markup !== undefined ? item.markup : '100'}"></td>
                 <td class="readonly-cell cell-retail-price" style="color: var(--primary); font-weight: 600;">0.00</td>
@@ -400,17 +402,29 @@
 
         const packPrice = parseFloat(item.packPrice) || 0;
         const qty = parseFloat(item.qty) || 0;
+        const totalQty = parseFloat(item.totalQty) || 0;
         const usedQty = parseFloat(item.usedQty) || 0;
         const markup = parseFloat(item.markup) || 0;
 
+        // Кол-во пачек = всего штук / штук в пачке
+        const packsCount = qty > 0 ? (totalQty / qty) : 0;
         const unitPrice = qty > 0 ? (packPrice / qty) : 0;
         const retailPrice = unitPrice * (1 + markup / 100);
         const rowCost = unitPrice * usedQty;
 
+        // Полные упаковки + остаток (для подсказки)
+        const fullPacks = qty > 0 ? Math.floor(totalQty / qty) : 0;
+        const remainder = qty > 0 ? (totalQty % qty) : 0;
+
+        const packsCell = row.querySelector('.cell-packs-count');
         const unitCell = row.querySelector('.cell-unit-price');
         const retailCell = row.querySelector('.cell-retail-price');
         const costCell = row.querySelector('.cell-row-cost');
 
+        if (packsCell) {
+            packsCell.textContent = packsCount.toFixed(2);
+            packsCell.title = `${fullPacks} полных упак. + ${remainder} шт`;
+        }
         if (unitCell) unitCell.textContent = unitPrice.toFixed(2);
         if (retailCell) retailCell.textContent = retailPrice.toFixed(2);
         if (costCell) costCell.textContent = rowCost.toFixed(2) + ' руб.';
@@ -516,7 +530,11 @@
         let totalProfit = totalRevenue - totalCost;
 
         let totalInventoryValue = items.reduce((acc, item) => {
-            return acc + ((parseFloat(item.packPrice) || 0) * (parseFloat(item.packsCount) || 1));
+            const packPrice = parseFloat(item.packPrice) || 0;
+            const totalQty = parseFloat(item.totalQty) || 0;
+            const qty = parseFloat(item.qty) || 0;
+            const packsCount = qty > 0 ? (totalQty / qty) : 0;
+            return acc + (packPrice * packsCount);
         }, 0);
 
         document.getElementById('dash-revenue').textContent = totalRevenue.toFixed(2) + ' руб.';
@@ -530,7 +548,7 @@
             name: 'Новая позиция',
             note: '',
             packPrice: '0.00',
-            packsCount: '1',
+            totalQty: '1',
             qty: '1',
             markup: '100',
             usedQty: '0'
