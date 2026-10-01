@@ -3,163 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Учет материалов и расчет себестоимости</title>
+    <title>Учет флориста 💐 | Мятный стиль</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 20px;
-            color: #333;
+        :root {
+            --primary: #2e8b57;       /* Мятный / Шалфейный зеленый */
+            --primary-light: #e8f5e9; /* Светло-мятный фоновый */
+            --primary-hover: #236b43;
+            --accent: #48bb78;        /* Нежно-зеленый акцент */
+            --bg: #f2f8f5;            /* Нежный свежий фон */
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #d2e3d8;
         }
 
-        .container {
-            max-width: 1200px;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 1300px;
             margin: 0 auto;
-            background: #ffffff;
+        }
+
+        /* Навигация по вкладкам */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: #e0f2e9;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--card-bg);
+            border-bottom-color: transparent;
+            color: var(--primary-hover);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
             padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 0 12px 12px 12px;
+            box-shadow: 0 4px 15px rgba(46, 139, 87, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         h2 {
             margin-top: 0;
-            color: #1a1a1a;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 12px;
+            color: var(--primary);
+            font-size: 20px;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .search-box {
-            margin-bottom: 20px;
+        /* Карточки дашборда */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
-        .search-box input {
-            width: 100%;
-            padding: 10px 14px;
-            font-size: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            outline: none;
+        .dash-card {
+            background: var(--primary-light);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
         }
 
-        .search-box input:focus {
-            border-color: #0066cc;
-            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+        .dash-card span {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 6px;
         }
 
+        .dash-card strong {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        /* Таблицы */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-top: 15px;
         }
 
         th, td {
-            padding: 10px 8px;
+            padding: 10px 10px;
             text-align: left;
-            border-bottom: 1px solid #e1e4e8;
+            border-bottom: 1px solid var(--border);
             font-size: 14px;
         }
 
         th {
-            background-color: #f8f9fa;
+            background-color: var(--primary-light);
+            color: var(--primary);
             font-weight: 600;
-            color: #555;
+        }
+
+        input, select {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
         }
 
         td input {
             width: 100%;
-            padding: 6px 8px;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-
-        td input:focus {
-            border-color: #0066cc;
-            outline: none;
-            background-color: #f0f7ff;
         }
 
         .readonly-cell {
-            background-color: #f9fafb;
-            color: #555;
+            background-color: #f8faf9;
+            color: #4a5568;
             font-weight: 500;
         }
 
-        .totals-panel {
+        /* Кнопки */
+        .btn {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
+
+        .form-row {
             display: flex;
-            gap: 20px;
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid #e1e4e8;
-            margin-top: 20px;
+            gap: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
-        .total-item {
-            flex: 1;
+        .search-box {
+            margin-bottom: 15px;
         }
 
-        .total-item span {
-            display: block;
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        .total-item strong {
-            font-size: 20px;
-            color: #111;
-        }
-
-        .total-item.highlight strong {
-            color: #0066cc;
+        .search-box input {
+            width: 100%;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Учет материалов и расчет себестоимости</h2>
-
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Поиск по наименованию...">
+<div class="app-container">
+    <!-- Переключение вкладок -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Дашборд</button>
+        <button class="tab-btn" onclick="switchTab('sales')">💐 Журнал продаж и Состав</button>
+        <button class="tab-btn" onclick="switchTab('inventory')">📦 Склад и Списание</button>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 25%;">Наименование</th>
-                <th style="width: 10%;">Заметка</th>
-                <th style="width: 10%;">Цена пачки</th>
-                <th style="width: 9%;">Кол-во пачек</th>
-                <th style="width: 10%;">Шт. в пачке</th>
-                <th style="width: 10%;">Цена за 1 шт.</th>
-                <th style="width: 12%;">Израсходовано (шт.)</th>
-                <th style="width: 14%;">Себестоимость</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <!-- Строки таблицы генерируются через JavaScript -->
-        </tbody>
-    </table>
+    <!-- Вкладка 1: Дашборд -->
+    <div id="dashboard" class="tab-content active">
+        <h2>📊 Дашборд и Аналитика</h2>
+        <div class="dashboard-grid">
+            <div class="dash-card">
+                <span>Общая выручка</span>
+                <strong id="dash-revenue">0.00 руб.</strong>
+            </div>
+            <div class="dash-card">
+                <span>Себестоимость проданного</span>
+                <strong id="dash-cost">0.00 руб.</strong>
+            </div>
+            <div class="dash-card">
+                <span>Чистая прибыль</span>
+                <strong id="dash-profit">0.00 руб.</strong>
+            </div>
+            <div class="dash-card">
+                <span>Стоимость материалов на складе</span>
+                <strong id="dash-inventory">0.00 руб.</strong>
+            </div>
+        </div>
+    </div>
 
-    <div class="totals-panel">
-        <div class="total-item highlight">
-            <span>Итого себестоимость (израсходовано):</span>
-            <strong id="total-cost">0.00 руб.</strong>
+    <!-- Вкладка 2: Журнал продаж -->
+    <div id="sales" class="tab-content">
+        <h2>💐 Журнал продаж и Ценообразование</h2>
+        
+        <div style="background: var(--primary-light); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="margin-top:0; color: var(--primary);">Оформить продажу букета</h3>
+            <div class="form-row">
+                <input type="text" id="sale-name" placeholder="Название букета / Клиент" style="flex: 2;">
+                <input type="number" id="sale-price" placeholder="Цена продажи (руб.)" style="flex: 1;">
+            </div>
+            
+            <h4>Состав букета (списание со склада):</h4>
+            <div id="recipe-items">
+                <div class="form-row recipe-row">
+                    <select class="recipe-material" style="flex: 2;"></select>
+                    <input type="number" class="recipe-qty" placeholder="Кол-во (шт)" value="1" style="flex: 1;">
+                </div>
+            </div>
+            <div class="form-row" style="margin-top: 10px;">
+                <button class="btn btn-outline" onclick="addRecipeRow()">+ Добавить компонент</button>
+                <button class="btn" onclick="addSale()">Продать и списать</button>
+            </div>
         </div>
-        <div class="total-item">
-            <span>Общая стоимость закупленных материалов:</span>
-            <strong id="total-inventory">0.00 руб.</strong>
+
+        <h3>История продаж</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Наименование</th>
+                    <th>Состав</th>
+                    <th>Себестоимость</th>
+                    <th>Цена продажи</th>
+                    <th>Прибыль</th>
+                </tr>
+            </thead>
+            <tbody id="salesTableBody">
+                <!-- Записи продаж -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Вкладка 3: Склад и Списание -->
+    <div id="inventory" class="tab-content">
+        <h2>📦 Справочник материалов и Списание</h2>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Поиск по наименованию...">
         </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 22%;">Наименование</th>
+                    <th style="width: 10%;">Заметка</th>
+                    <th style="width: 10%;">Цена пачки</th>
+                    <th style="width: 8%;">Кол-во пачек</th>
+                    <th style="width: 10%;">Шт. в пачке</th>
+                    <th style="width: 10%;">Цена за 1 шт.</th>
+                    <th style="width: 12%;">Израсходовано (шт.)</th>
+                    <th style="width: 18%;">Себестоимость списания</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+                <!-- Данные генерируются через JS -->
+            </tbody>
+        </table>
     </div>
 </div>
 
 <script>
-    // Массив данных о материалах с добавленным полем packsCount (Кол-во пачек)
+    // Исходные данные материалов
     const items = [
         { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', packsCount: '1', qty: '50', usedQty: '0' },
         { name: 'Упаковочная бумага', note: '', packPrice: '150.00', packsCount: '1', qty: '10', usedQty: '0' },
@@ -184,11 +322,20 @@
         { name: 'Бабочки', note: '', packPrice: '0.00', packsCount: '1', qty: '1', usedQty: '0' }
     ];
 
-    let isEditing = false;
+    const salesHistory = [];
 
-    // Отрисовка таблицы
-    function renderTable(data = items) {
-        const tbody = document.getElementById('tableBody');
+    // Переключение вкладок
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Отрисовка таблицы материалов
+    function renderInventory(data = items) {
+        const tbody = document.getElementById('inventoryTableBody');
         tbody.innerHTML = '';
 
         data.forEach((item, index) => {
@@ -208,81 +355,148 @@
                 <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="qty" value="${item.qty}"></td>
                 <td class="readonly-cell" id="unit-price-${index}">${unitPrice.toFixed(2)}</td>
                 <td><input type="number" step="1" class="cell-input" data-index="${index}" data-field="usedQty" value="${item.usedQty}"></td>
-                <td class="readonly-cell" id="row-cost-${index}">${rowCost.toFixed(2)}</td>
+                <td class="readonly-cell" id="row-cost-${index}">${rowCost.toFixed(2)} руб.</td>
             `;
             tbody.appendChild(tr);
         });
 
-        calculateTotals();
+        populateSelectOptions();
+        updateDashboard();
     }
 
-    // Слушатель ввода изменений
+    // Обновление селектов материалов
+    function populateSelectOptions() {
+        const selects = document.querySelectorAll('.recipe-material');
+        selects.forEach(select => {
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- Выберите материал --</option>';
+            items.forEach((item, idx) => {
+                const option = document.createElement('option');
+                option.value = idx;
+                option.textContent = `${item.name} (${(parseFloat(item.packPrice)/parseFloat(item.qty) || 0).toFixed(2)} руб/шт)`;
+                select.appendChild(option);
+            });
+            select.value = currentVal;
+        });
+    }
+
+    // Добавление строки компонента в букет
+    function addRecipeRow() {
+        const container = document.getElementById('recipe-items');
+        const row = document.createElement('div');
+        row.className = 'form-row recipe-row';
+        row.innerHTML = `
+            <select class="recipe-material" style="flex: 2;"></select>
+            <input type="number" class="recipe-qty" placeholder="Кол-во (шт)" value="1" style="flex: 1;">
+        `;
+        container.appendChild(row);
+        populateSelectOptions();
+    }
+
+    // Оформление продажи
+    function addSale() {
+        const saleName = document.getElementById('sale-name').value || 'Букет';
+        const salePrice = parseFloat(document.getElementById('sale-price').value) || 0;
+
+        const rows = document.querySelectorAll('.recipe-row');
+        let totalCost = 0;
+        let compositionDetails = [];
+
+        rows.forEach(row => {
+            const materialIdx = row.querySelector('.recipe-material').value;
+            const count = parseFloat(row.querySelector('.recipe-qty').value) || 0;
+
+            if (materialIdx !== '' && count > 0) {
+                const item = items[materialIdx];
+                const unitPrice = (parseFloat(item.packPrice) || 0) / (parseFloat(item.qty) || 1);
+                const cost = unitPrice * count;
+
+                // Автоматическое списание со склада
+                item.usedQty = (parseFloat(item.usedQty) || 0) + count;
+                totalCost += cost;
+                compositionDetails.push(`${item.name} x${count}`);
+            }
+        });
+
+        const profit = salePrice - totalCost;
+
+        salesHistory.push({
+            name: saleName,
+            composition: compositionDetails.join(', '),
+            cost: totalCost,
+            price: salePrice,
+            profit: profit
+        });
+
+        renderSalesTable();
+        renderInventory();
+        
+        // Очистка полей ввода
+        document.getElementById('sale-name').value = '';
+        document.getElementById('sale-price').value = '';
+        document.getElementById('recipe-items').innerHTML = `
+            <div class="form-row recipe-row">
+                <select class="recipe-material" style="flex: 2;"></select>
+                <input type="number" class="recipe-qty" placeholder="Кол-во (шт)" value="1" style="flex: 1;">
+            </div>
+        `;
+        populateSelectOptions();
+    }
+
+    // Таблица продаж
+    function renderSalesTable() {
+        const tbody = document.getElementById('salesTableBody');
+        tbody.innerHTML = '';
+
+        salesHistory.forEach(sale => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${sale.name}</strong></td>
+                <td><small>${sale.composition}</small></td>
+                <td>${sale.cost.toFixed(2)} руб.</td>
+                <td>${sale.price.toFixed(2)} руб.</td>
+                <td style="color: var(--primary); font-weight: bold;">${sale.profit.toFixed(2)} руб.</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Обновление дашборда
+    function updateDashboard() {
+        let totalRevenue = salesHistory.reduce((acc, s) => acc + s.price, 0);
+        let totalCost = salesHistory.reduce((acc, s) => acc + s.cost, 0);
+        let totalProfit = totalRevenue - totalCost;
+
+        let totalInventoryValue = items.reduce((acc, item) => {
+            return acc + ((parseFloat(item.packPrice) || 0) * (parseFloat(item.packsCount) || 1));
+        }, 0);
+
+        document.getElementById('dash-revenue').textContent = totalRevenue.toFixed(2) + ' руб.';
+        document.getElementById('dash-cost').textContent = totalCost.toFixed(2) + ' руб.';
+        document.getElementById('dash-profit').textContent = totalProfit.toFixed(2) + ' руб.';
+        document.getElementById('dash-inventory').textContent = totalInventoryValue.toFixed(2) + ' руб.';
+    }
+
+    // Событие редактирования ячеек
     document.addEventListener('input', (e) => {
         if (e.target.classList.contains('cell-input')) {
-            isEditing = true;
-
             const index = e.target.getAttribute('data-index');
             const field = e.target.getAttribute('data-field');
             items[index][field] = e.target.value;
 
-            // Пересчитываем отдельную строку
-            updateRowCalculations(index);
-
-            // Пересчитываем общие итоги
-            calculateTotals();
+            renderInventory();
         }
     });
-
-    // Расчет отдельной строки
-    function updateRowCalculations(index) {
-        const item = items[index];
-        const packPrice = parseFloat(item.packPrice) || 0;
-        const qty = parseFloat(item.qty) || 0;
-        const usedQty = parseFloat(item.usedQty) || 0;
-
-        const unitPrice = qty > 0 ? (packPrice / qty) : 0;
-        const rowCost = unitPrice * usedQty;
-
-        const unitPriceEl = document.getElementById(`unit-price-${index}`);
-        const rowCostEl = document.getElementById(`row-cost-${index}`);
-
-        if (unitPriceEl) unitPriceEl.textContent = unitPrice.toFixed(2);
-        if (rowCostEl) rowCostEl.textContent = rowCost.toFixed(2);
-    }
-
-    // Расчет итогов по всем позициям
-    function calculateTotals() {
-        let totalCost = 0;
-        let totalInventory = 0;
-
-        items.forEach(item => {
-            const packPrice = parseFloat(item.packPrice) || 0;
-            const packsCount = parseFloat(item.packsCount) || 1;
-            const qty = parseFloat(item.qty) || 0;
-            const usedQty = parseFloat(item.usedQty) || 0;
-
-            const unitPrice = qty > 0 ? (packPrice / qty) : 0;
-
-            totalCost += unitPrice * usedQty;
-            totalInventory += packPrice * packsCount;
-        });
-
-        const totalCostEl = document.getElementById('total-cost');
-        const totalInventoryEl = document.getElementById('total-inventory');
-
-        if (totalCostEl) totalCostEl.textContent = totalCost.toFixed(2) + ' руб.';
-        if (totalInventoryEl) totalInventoryEl.textContent = totalInventory.toFixed(2) + ' руб.';
-    }
 
     // Поиск
     document.getElementById('searchInput').addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        const filteredItems = items.filter(item => item.name.toLowerCase().includes(query));
-        renderTable(filteredItems);
+        const filtered = items.filter(item => item.name.toLowerCase().includes(query));
+        renderInventory(filtered);
     });
 
-    // Инициализация таблицы
-    renderTable();
+    // Инициализация
+    renderInventory();
 </script>
 
 </body>
