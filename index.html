@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пастельно-мятный калькулятор себестоимости</title>
+    <title>Облачный калькулятор себестоимости</title>
     <style>
         :root {
             --pastel-mint: #e0f2f1;
@@ -12,7 +12,6 @@
             --mint-header: #4db6ac;
             --text-main: #264653;
             --bg-page: #f4fbfb;
-            --editable-bg: #ffffff;
         }
 
         body {
@@ -29,19 +28,21 @@
             box-shadow: 0 4px 20px rgba(77, 182, 172, 0.12);
             margin-bottom: 24px;
             border-left: 6px solid var(--mint-header);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        h1 {
-            color: var(--text-main);
-            margin: 0 0 6px 0;
-            font-size: 1.6em;
+        h1 { color: var(--text-main); margin: 0 0 6px 0; font-size: 1.6em; font-weight: 600; }
+        .subtitle { color: #607d8b; margin: 0; font-size: 0.9em; }
+
+        .sync-status {
+            font-size: 0.85em;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background-color: #e0f2f1;
+            color: #00796b;
             font-weight: 600;
-        }
-
-        .subtitle {
-            color: #607d8b;
-            margin: 0;
-            font-size: 0.9em;
         }
 
         table {
@@ -54,26 +55,10 @@
             overflow: hidden;
         }
 
-        th, td {
-            padding: 14px 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--pastel-mint);
-        }
+        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--pastel-mint); }
+        th { background-color: var(--pastel-mint); color: var(--text-main); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background-color: #fafefe; }
 
-        th {
-            background-color: var(--pastel-mint);
-            color: var(--text-main);
-            font-weight: 600;
-            font-size: 0.85em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        tr:hover {
-            background-color: #fafefe;
-        }
-
-        /* Редактируемые белые ячейки с пастельной рамкой */
         td[contenteditable="true"] {
             background-color: #fbfdfe;
             border: 1px dashed var(--mint-border);
@@ -88,83 +73,30 @@
             box-shadow: 0 0 0 3px rgba(77, 182, 172, 0.2);
         }
 
-        .number-col {
-            text-align: right;
-        }
+        .number-col { text-align: right; }
+        .auto-calc { background-color: var(--pastel-mint); font-weight: 600; color: var(--text-main); border-radius: 6px; }
+        .total-row { background-color: var(--pastel-mint); font-weight: bold; font-size: 1.1em; }
+        .total-row td { border-top: 2px solid var(--mint-border); }
 
-        /* Вычисляемые поля (серые/автоматические) */
-        .auto-calc {
-            background-color: var(--pastel-mint);
-            font-weight: 600;
-            color: var(--text-main);
-            border-radius: 6px;
-        }
-
-        .total-row {
-            background-color: var(--pastel-mint);
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .total-row td {
-            border-top: 2px solid var(--mint-border);
-        }
-
-        .btn-container {
-            margin-top: 20px;
-            display: flex;
-            gap: 12px;
-        }
-
-        button {
-            padding: 11px 22px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: all 0.2s ease;
-        }
-
-        .btn-add { 
-            background-color: var(--mint-header); 
-            color: white; 
-            box-shadow: 0 2px 8px rgba(77, 182, 172, 0.3);
-        }
-        .btn-add:hover { 
-            background-color: #388e3c; 
-            background-color: #39a096;
-            transform: translateY(-1px);
-        }
-
-        .btn-reset { 
-            background-color: #b0bec5; 
-            color: white; 
-        }
-        .btn-reset:hover { 
-            background-color: #90a4ae; 
-        }
-
-        .btn-delete { 
-            background-color: #ef9a9a; 
-            color: #78909c;
-            color: #c62828;
-            padding: 5px 10px; 
-            font-size: 0.8em; 
-            border-radius: 6px;
-            background: #ffebee;
-        }
-        .btn-delete:hover { 
-            background-color: #e57373; 
-            color: white;
-        }
+        .btn-container { margin-top: 20px; display: flex; gap: 12px; }
+        button { padding: 11px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.2s ease; }
+        
+        .btn-add { background-color: var(--mint-header); color: white; box-shadow: 0 2px 8px rgba(77, 182, 172, 0.3); }
+        .btn-add:hover { background-color: #39a096; transform: translateY(-1px); }
+        .btn-reset { background-color: #b0bec5; color: white; }
+        .btn-reset:hover { background-color: #90a4ae; }
+        .btn-delete { background-color: #ffebee; color: #c62828; padding: 5px 10px; font-size: 0.8em; border-radius: 6px; }
+        .btn-delete:hover { background-color: #e57373; color: white; }
     </style>
 </head>
 <body>
 
     <div class="header-card">
-        <h1>Калькулятор себестоимости</h1>
-        <p class="subtitle">Пастельный мятный стиль. Вводите стоимость пачки/упаковки и кол-во штук — цена за 1 шт посчитается автоматически.</p>
+        <div>
+            <h1>Облачный калькулятор себестоимости</h1>
+            <p class="subtitle">Данные автоматически синхронизируются между всеми вашими устройствами.</p>
+        </div>
+        <div id="status" class="sync-status">🟢 Облако подключено</div>
     </div>
 
     <table id="calcTable">
@@ -180,19 +112,7 @@
                 <th style="width: 3%;"></th>
             </tr>
         </thead>
-        <tbody id="tableBody">
-            <!-- Пример: 460 рублей за коробку из 50 роз -->
-            <tr>
-                <td class="row-num">1</td>
-                <td contenteditable="true" class="cell-name">Мыльные розы (бутоны)</td>
-                <td contenteditable="true" class="cell-note">Коробка красных роз</td>
-                <td contenteditable="true" class="number-col cell-pack-price">460.00</td>
-                <td contenteditable="true" class="number-col cell-qty">50</td>
-                <td class="number-col auto-calc cell-unit-price">9.20</td>
-                <td class="number-col auto-calc cell-total">460.00</td>
-                <td><button class="btn-delete" onclick="deleteRow(this)">✕</button></td>
-            </tr>
-        </tbody>
+        <tbody id="tableBody"></tbody>
         <tfoot>
             <tr class="total-row">
                 <td colspan="6" style="text-align: right;">ОБЩАЯ СУММА ЗАКУПКИ:</td>
@@ -204,11 +124,51 @@
 
     <div class="btn-container">
         <button class="btn-add" onclick="addRow()">+ Добавить позицию</button>
-        <button class="btn-reset" onclick="resetToDefault()">Сбросить данные</button>
+        <button class="btn-reset" onclick="resetToDefault()">Сбросить всё</button>
     </div>
 
-    <script>
-        document.getElementById('tableBody').addEventListener('input', calculateTotals);
+    <!-- Подключаем Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Ваши встроенные ключи конфигурации Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHCvoQNVlVXrFVEDBE61JrZrX9p0kW0Ac",
+            authDomain: "continue-2daa0.firebaseapp.com",
+            databaseURL: "https://continue-2daa0-default-rtdb.firebaseio.com",
+            projectId: "continue-2daa0",
+            storageBucket: "continue-2daa0.firebasestorage.app",
+            messagingSenderId: "489888561978",
+            appId: "1:489888561978:web:3498c007cde577b0ba6e03",
+            measurementId: "G-857F5KS3EC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db, 'calculator_data');
+
+        let isRemoteUpdate = false;
+
+        // Отслеживаем изменения в таблице и отправляем в облако
+        document.getElementById('tableBody').addEventListener('input', () => {
+            if (!isRemoteUpdate) {
+                calculateTotals();
+                saveToCloud();
+            }
+        });
+
+        // Слушаем изменения из облака в реальном времени
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            isRemoteUpdate = true;
+            if (data) {
+                renderTableFromData(data);
+            } else {
+                renderTableFromData([{ name: 'Мыльные розы (бутоны)', note: 'Коробка красных роз', packPrice: '460.00', qty: '50' }]);
+            }
+            isRemoteUpdate = false;
+        });
 
         function calculateTotals() {
             const rows = document.querySelectorAll('#tableBody tr');
@@ -217,18 +177,15 @@
             rows.forEach((row, index) => {
                 row.querySelector('.row-num').innerText = index + 1;
 
-                // Получаем введенную цену упаковки и количество штук
                 const packPriceText = row.querySelector('.cell-pack-price').innerText.replace(',', '.');
                 const qtyText = row.querySelector('.cell-qty').innerText.replace(',', '.');
 
                 const packPrice = parseFloat(packPriceText) || 0;
                 const qty = parseFloat(qtyText) || 0;
 
-                // Автоматический расчет цены за 1 штуку
                 const unitPrice = qty > 0 ? (packPrice / qty) : 0;
                 row.querySelector('.cell-unit-price').innerText = unitPrice.toFixed(2);
 
-                // Итого по позиции
                 const total = packPrice;
                 row.querySelector('.cell-total').innerText = total.toFixed(2);
 
@@ -236,10 +193,43 @@
             });
 
             document.getElementById('grandTotal').innerText = grandTotal.toFixed(2) + " руб.";
-            saveToStorage();
         }
 
-        function addRow() {
+        function renderTableFromData(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td class="row-num"></td>
+                    <td contenteditable="true" class="cell-name">${item.name}</td>
+                    <td contenteditable="true" class="cell-note">${item.note || ''}</td>
+                    <td contenteditable="true" class="number-col cell-pack-price">${item.packPrice || '0.00'}</td>
+                    <td contenteditable="true" class="number-col cell-qty">${item.qty || '1'}</td>
+                    <td class="number-col auto-calc cell-unit-price">0.00</td>
+                    <td class="number-col auto-calc cell-total">0.00</td>
+                    <td><button class="btn-delete" onclick="deleteRow(this)">✕</button></td>
+                `;
+                tbody.appendChild(newRow);
+            });
+            calculateTotals();
+        }
+
+        function saveToCloud() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            const data = [];
+            rows.forEach(row => {
+                data.push({
+                    name: row.querySelector('.cell-name').innerText,
+                    note: row.querySelector('.cell-note').innerText,
+                    packPrice: row.querySelector('.cell-pack-price').innerText,
+                    qty: row.querySelector('.cell-qty').innerText
+                });
+            });
+            set(dbRef, data);
+        }
+
+        window.addRow = function() {
             const tbody = document.getElementById('tableBody');
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
@@ -254,62 +244,20 @@
             `;
             tbody.appendChild(newRow);
             calculateTotals();
-        }
+            saveToCloud();
+        };
 
-        function deleteRow(button) {
-            const row = button.parentElement.parentElement;
-            row.remove();
+        window.deleteRow = function(button) {
+            button.parentElement.parentElement.remove();
             calculateTotals();
-        }
+            saveToCloud();
+        };
 
-        function saveToStorage() {
-            const rows = document.querySelectorAll('#tableBody tr');
-            const data = [];
-            rows.forEach(row => {
-                data.push({
-                    name: row.querySelector('.cell-name').innerText,
-                    note: row.querySelector('.cell-note').innerText,
-                    packPrice: row.querySelector('.cell-pack-price').innerText,
-                    qty: row.querySelector('.cell-qty').innerText
-                });
-            });
-            localStorage.setItem('pastelMintCalculatorData', JSON.stringify(data));
-        }
-
-        function loadFromStorage() {
-            const savedData = localStorage.getItem('pastelMintCalculatorData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                if (data.length > 0) {
-                    const tbody = document.getElementById('tableBody');
-                    tbody.innerHTML = '';
-                    data.forEach(item => {
-                        const newRow = document.createElement('tr');
-                        newRow.innerHTML = `
-                            <td class="row-num"></td>
-                            <td contenteditable="true" class="cell-name">${item.name}</td>
-                            <td contenteditable="true" class="cell-note">${item.note || ''}</td>
-                            <td contenteditable="true" class="number-col cell-pack-price">${item.packPrice || '0.00'}</td>
-                            <td contenteditable="true" class="number-col cell-qty">${item.qty || '1'}</td>
-                            <td class="number-col auto-calc cell-unit-price">0.00</td>
-                            <td class="number-col auto-calc cell-total">0.00</td>
-                            <td><button class="btn-delete" onclick="deleteRow(this)">✕</button></td>
-                        `;
-                        tbody.appendChild(newRow);
-                    });
-                }
+        window.resetToDefault = function() {
+            if (confirm("Очистить базу данных?")) {
+                set(dbRef, [{ name: 'Мыльные розы (бутоны)', note: 'Коробка красных роз', packPrice: '460.00', qty: '50' }]);
             }
-            calculateTotals();
-        }
-
-        function resetToDefault() {
-            if (confirm("Вернуть начальную строку роз за 460 руб?")) {
-                localStorage.removeItem('pastelMintCalculatorData');
-                location.reload();
-            }
-        }
-
-        window.onload = loadFromStorage;
+        };
     </script>
 </body>
 </html>
