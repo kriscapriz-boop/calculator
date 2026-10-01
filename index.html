@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Облачный калькулятор себестоимости</title>
+    <title>Облачный калькулятор, склад и букеты</title>
     <style>
         :root {
             --pastel-mint: #e0f2f1;
@@ -12,6 +12,8 @@
             --mint-header: #4db6ac;
             --text-main: #264653;
             --bg-page: #f4fbfb;
+            --accent-pink: #f8bbd0;
+            --btn-pink: #ec407a;
         }
 
         body {
@@ -26,7 +28,7 @@
             padding: 20px 24px;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(77, 182, 172, 0.12);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             border-left: 6px solid var(--mint-header);
             display: flex;
             justify-content: space-between;
@@ -34,6 +36,7 @@
         }
 
         h1 { color: var(--text-main); margin: 0 0 6px 0; font-size: 1.6em; font-weight: 600; }
+        h2 { color: var(--text-main); font-size: 1.3em; margin-bottom: 12px; font-weight: 600; }
         .subtitle { color: #607d8b; margin: 0; font-size: 0.9em; }
 
         .sync-status {
@@ -45,6 +48,32 @@
             font-weight: 600;
         }
 
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border: 1px solid var(--pastel-mint);
+        }
+
+        .summary-card .title { font-size: 0.85em; color: #607d8b; font-weight: 600; text-transform: uppercase; }
+        .summary-card .value { font-size: 1.4em; font-weight: 700; color: var(--text-main); margin-top: 6px; }
+
+        .section-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            margin-bottom: 24px;
+        }
+
         table {
             width: 100%;
             border-collapse: separate;
@@ -53,21 +82,21 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
             border-radius: 12px;
             overflow: hidden;
+            margin-bottom: 12px;
         }
 
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--pastel-mint); }
-        th { background-color: var(--pastel-mint); color: var(--text-main); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--pastel-mint); }
+        th { background-color: var(--pastel-mint); color: var(--text-main); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; }
         tr:hover { background-color: #fafefe; }
 
-        /* Поля ввода */
-        .cell-input {
+        .cell-input, select.cell-input {
             width: 100%;
             border: 1px dashed var(--mint-border);
             border-radius: 6px;
             padding: 6px 8px;
             box-sizing: border-box;
             font-family: inherit;
-            font-size: 0.95em;
+            font-size: 0.9em;
             color: var(--text-main);
             background-color: #fbfdfe;
             outline: none;
@@ -82,56 +111,117 @@
 
         .number-col { text-align: right; }
         .auto-calc { background-color: var(--pastel-mint); font-weight: 600; color: var(--text-main); border-radius: 6px; padding: 6px 8px; display: block; }
-        .total-row { background-color: var(--pastel-mint); font-weight: bold; font-size: 1.1em; }
+        .total-row { background-color: var(--pastel-mint); font-weight: bold; font-size: 1em; }
         .total-row td { border-top: 2px solid var(--mint-border); }
 
-        .btn-container { margin-top: 20px; display: flex; gap: 12px; }
-        button { padding: 11px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.2s ease; }
+        .btn-container { margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap; }
+        button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88em; transition: all 0.2s ease; }
         
-        .btn-add { background-color: var(--mint-header); color: white; box-shadow: 0 2px 8px rgba(77, 182, 172, 0.3); }
-        .btn-add:hover { background-color: #39a096; transform: translateY(-1px); }
+        .btn-add { background-color: var(--mint-header); color: white; }
+        .btn-add:hover { background-color: #39a096; }
+        .btn-pink { background-color: var(--btn-pink); color: white; box-shadow: 0 2px 8px rgba(236, 64, 122, 0.3); }
+        .btn-pink:hover { background-color: #d81b60; }
         .btn-reset { background-color: #b0bec5; color: white; }
         .btn-reset:hover { background-color: #90a4ae; }
         .btn-delete { background-color: #ffebee; color: #c62828; padding: 5px 10px; font-size: 0.8em; border-radius: 6px; }
         .btn-delete:hover { background-color: #e57373; color: white; }
+
+        .bouquet-card {
+            border: 1px solid var(--mint-border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #fafcfc;
+        }
+
+        .bouquet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .bouquet-cost {
+            font-weight: 700;
+            color: #d81b60;
+            font-size: 1.1em;
+            background: #fce4ec;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
 
     <div class="header-card">
         <div>
-            <h1>Облачный калькулятор себестоимости</h1>
-            <p class="subtitle">Данные автоматически синхронизируются между всеми устройствами.</p>
+            <h1>Облачный калькулятор, склад и букеты</h1>
+            <p class="subtitle">Учет материалов, составление рецептов букетов и мгновенное списание со склада.</p>
         </div>
         <div id="status" class="sync-status">🟢 Облако подключено</div>
     </div>
 
-    <table id="calcTable">
-        <thead>
-            <tr>
-                <th style="width: 4%;">№</th>
-                <th style="width: 28%;">Наименование</th>
-                <th style="width: 18%;">Примечание</th>
-                <th style="width: 15%;" class="number-col">Цена пачки/коробки (руб)</th>
-                <th style="width: 12%;" class="number-col">Кол-во в пачке (шт)</th>
-                <th style="width: 10%;" class="number-col">Цена за 1 шт (авто)</th>
-                <th style="width: 10%;" class="number-col">Итого (руб)</th>
-                <th style="width: 3%;"></th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-        <tfoot>
-            <tr class="total-row">
-                <td colspan="6" style="text-align: right;">ОБЩАЯ СУММА ЗАКУПКИ:</td>
-                <td class="number-col" id="grandTotal">0.00 руб.</td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
+    <!-- Карточки сводки -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="title">Всего закупок</div>
+            <div class="value" id="summaryTotalPurchase">0.00 руб.</div>
+        </div>
+        <div class="summary-card">
+            <div class="title">Списано (Расход)</div>
+            <div class="value" id="summaryTotalUsed" style="color: #e53935;">0.00 руб.</div>
+        </div>
+        <div class="summary-card">
+            <div class="title">Остаток на складе</div>
+            <div class="value" id="summaryTotalStock" style="color: #2e7d32;">0.00 руб.</div>
+        </div>
+    </div>
 
-    <div class="btn-container">
-        <button class="btn-add" onclick="addRow()">+ Добавить позицию</button>
-        <button class="btn-reset" onclick="resetToDefault()">Сбросить всё</button>
+    <!-- БЛОК 1: Собрать букет -->
+    <div class="section-card">
+        <h2>💐 Состав букетов и списание</h2>
+        <div id="bouquetsContainer"></div>
+        <button class="btn-pink" onclick="addBouquet()">+ Создать новый букет</button>
+    </div>
+
+    <!-- БЛОК 2: Склад материалов -->
+    <div class="section-card">
+        <h2>📦 Склад и закупка материалов</h2>
+        <table id="calcTable">
+            <thead>
+                <tr>
+                    <th style="width: 3%;">№</th>
+                    <th style="width: 22%;">Наименование</th>
+                    <th style="width: 13%;">Примечание</th>
+                    <th style="width: 11%;" class="number-col">Цена пачки (руб)</th>
+                    <th style="width: 9%;" class="number-col">Кол-во (шт)</th>
+                    <th style="width: 10%;" class="number-col">Цена за 1 шт</th>
+                    <th style="width: 10%;" class="number-col">Списано (шт)</th>
+                    <th style="width: 10%;" class="number-col">Остаток (шт)</th>
+                    <th style="width: 10%;" class="number-col">Остаток (руб)</th>
+                    <th style="width: 2%;"></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="3" style="text-align: right;">ИТОГО:</td>
+                    <td class="number-col" id="grandTotalPurchase">0.00</td>
+                    <td></td>
+                    <td></td>
+                    <td class="number-col" id="grandTotalUsedQty">0 шт</td>
+                    <td class="number-col" id="grandTotalStockQty">0 шт</td>
+                    <td class="number-col" id="grandTotalStockRub">0.00 руб.</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="btn-container">
+            <button class="btn-add" onclick="addRow()">+ Добавить материал на склад</button>
+            <button class="btn-reset" onclick="resetToDefault()">Сбросить всё</button>
+        </div>
     </div>
 
     <!-- Подключаем Firebase SDK -->
@@ -152,71 +242,126 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const dbRef = ref(db, 'calculator_data');
+        const dbRef = ref(db, 'calculator_data_v2');
 
         let isEditing = false;
         let saveTimeout = null;
+        let bouquetsData = [];
 
-        // Отслеживаем ввод без перерисовки всей таблицы
-        document.getElementById('tableBody').addEventListener('input', (e) => {
-            isEditing = true;
-            calculateTotals();
-            
-            // Таймер для отправки в базу (дебаунс), чтобы не перегружать сеть при каждом символе
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                saveToCloud();
-                isEditing = false;
-            }, 600);
+        // Сохранение при вводе
+        document.addEventListener('input', (e) => {
+            if (e.target.classList.contains('cell-input')) {
+                isEditing = true;
+                calculateTotals();
+                
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    saveToCloud();
+                    isEditing = false;
+                }, 600);
+            }
         });
 
-        // Слушаем изменения из базы
+        // Слушаем Firebase
         onValue(dbRef, (snapshot) => {
-            // Если пользователь прямо сейчас печатает, не перерисовываем, чтобы не сбить курсор
             if (isEditing) return;
 
             const data = snapshot.val();
             if (data) {
-                renderTableFromData(data);
+                renderTableFromData(data.materials || []);
+                bouquetsData = data.bouquets || [];
+                renderBouquets();
             } else {
-                renderTableFromData([{ name: 'Мыльные розы (бутоны)', note: 'Коробка красных роз', packPrice: '460.00', qty: '50' }]);
+                renderTableFromData([
+                    { name: 'Мыльные розы (бутоны)', note: 'Красные', packPrice: '460.00', qty: '50', usedQty: '0' },
+                    { name: 'Упаковочная бумага', note: 'Рулон', packPrice: '150.00', qty: '10', usedQty: '0' }
+                ]);
+                bouquetsData = [{
+                    name: 'Букет "Нежность"',
+                    items: [{ materialName: 'Мыльные розы (бутоны)', qty: 7 }, { materialName: 'Упаковочная бумага', qty: 1 }]
+                }];
+                renderBouquets();
             }
         });
 
         function calculateTotals() {
             const rows = document.querySelectorAll('#tableBody tr');
-            let grandTotal = 0;
+            let grandTotalPurchase = 0;
+            let grandTotalUsedRub = 0;
+            let grandTotalStockRub = 0;
+            let grandTotalUsedQty = 0;
+            let grandTotalStockQty = 0;
 
             rows.forEach((row, index) => {
                 row.querySelector('.row-num').innerText = index + 1;
 
                 const packPriceInput = row.querySelector('.cell-pack-price');
                 const qtyInput = row.querySelector('.cell-qty');
+                const usedQtyInput = row.querySelector('.cell-used-qty');
 
                 const packPrice = parseFloat(packPriceInput.value.replace(',', '.')) || 0;
                 const qty = parseFloat(qtyInput.value.replace(',', '.')) || 0;
+                const usedQty = parseFloat(usedQtyInput.value.replace(',', '.')) || 0;
 
                 const unitPrice = qty > 0 ? (packPrice / qty) : 0;
                 row.querySelector('.cell-unit-price').innerText = unitPrice.toFixed(2);
 
-                const total = packPrice;
-                row.querySelector('.cell-total').innerText = total.toFixed(2);
+                const stockQty = qty - usedQty;
+                row.querySelector('.cell-stock-qty').innerText = stockQty;
 
-                grandTotal += total;
+                const stockRub = stockQty * unitPrice;
+                row.querySelector('.cell-stock-rub').innerText = stockRub.toFixed(2);
+
+                grandTotalPurchase += packPrice;
+                grandTotalUsedRub += usedQty * unitPrice;
+                grandTotalStockRub += stockRub;
+                grandTotalUsedQty += usedQty;
+                grandTotalStockQty += stockQty;
             });
 
-            document.getElementById('grandTotal').innerText = grandTotal.toFixed(2) + " руб.";
+            document.getElementById('grandTotalPurchase').innerText = grandTotalPurchase.toFixed(2);
+            document.getElementById('grandTotalUsedQty').innerText = grandTotalUsedQty + " шт";
+            document.getElementById('grandTotalStockQty').innerText = grandTotalStockQty + " шт";
+            document.getElementById('grandTotalStockRub').innerText = grandTotalStockRub.toFixed(2) + " руб.";
+
+            document.getElementById('summaryTotalPurchase').innerText = grandTotalPurchase.toFixed(2) + " руб.";
+            document.getElementById('summaryTotalUsed').innerText = grandTotalUsedRub.toFixed(2) + " руб.";
+            document.getElementById('summaryTotalStock').innerText = grandTotalStockRub.toFixed(2) + " руб.";
+
+            updateBouquetsCost();
+        }
+
+        function getMaterialPrice(materialName) {
+            const rows = document.querySelectorAll('#tableBody tr');
+            for (let row of rows) {
+                const name = row.querySelector('.cell-name').value;
+                if (name === materialName) {
+                    return parseFloat(row.querySelector('.cell-unit-price').innerText) || 0;
+                }
+            }
+            return 0;
+        }
+
+        function updateBouquetsCost() {
+            const cards = document.querySelectorAll('.bouquet-card');
+            cards.forEach(card => {
+                let totalCost = 0;
+                const itemRows = card.querySelectorAll('.b-item-row');
+                itemRows.forEach(row => {
+                    const matName = row.querySelector('.b-mat-select').value;
+                    const qty = parseFloat(row.querySelector('.b-qty-input').value) || 0;
+                    const price = getMaterialPrice(matName);
+                    totalCost += price * qty;
+                });
+                const costBadge = card.querySelector('.bouquet-cost');
+                if (costBadge) costBadge.innerText = 'Себестоимость: ' + totalCost.toFixed(2) + ' руб.';
+            });
         }
 
         function renderTableFromData(data) {
             const tbody = document.getElementById('tableBody');
-            
-            // Запоминаем активный элемент, если он есть
-            const activeElement = document.activeElement;
-            const activeRowIndex = activeElement ? activeElement.closest('tr')?.rowIndex : -1;
-            const activeClass = activeElement ? activeElement.className : '';
-
             tbody.innerHTML = '';
+
             data.forEach(item => {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
@@ -226,7 +371,9 @@
                     <td><input type="text" class="cell-input number-col cell-pack-price" value="${item.packPrice || '0.00'}"></td>
                     <td><input type="text" class="cell-input number-col cell-qty" value="${item.qty || '1'}"></td>
                     <td><span class="number-col auto-calc cell-unit-price">0.00</span></td>
-                    <td><span class="number-col auto-calc cell-total">0.00</span></td>
+                    <td><input type="text" class="cell-input number-col cell-used-qty" value="${item.usedQty || '0'}"></td>
+                    <td><span class="number-col auto-calc cell-stock-qty">0</span></td>
+                    <td><span class="number-col auto-calc cell-stock-rub">0.00</span></td>
                     <td><button class="btn-delete" onclick="deleteRow(this)">✕</button></td>
                 `;
                 tbody.appendChild(newRow);
@@ -235,18 +382,162 @@
             calculateTotals();
         }
 
+        function getMaterialsList() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            const list = [];
+            rows.forEach(r => {
+                const val = r.querySelector('.cell-name').value;
+                if (val) list.push(val);
+            });
+            return list;
+        }
+
+        function renderBouquets() {
+            const container = document.getElementById('bouquetsContainer');
+            container.innerHTML = '';
+            const materials = getMaterialsList();
+
+            bouquetsData.forEach((b, bIndex) => {
+                const card = document.createElement('div');
+                card.className = 'bouquet-card';
+
+                let itemsHtml = '';
+                (b.items || []).forEach((item, iIndex) => {
+                    let optionsHtml = materials.map(m => `<option value="${m}" ${m === item.materialName ? 'selected' : ''}>${m}</option>`).join('');
+                    itemsHtml += `
+                        <tr class="b-item-row">
+                            <td>
+                                <select class="cell-input b-mat-select">
+                                    ${optionsHtml}
+                                </select>
+                            </td>
+                            <td style="width: 100px;">
+                                <input type="text" class="cell-input number-col b-qty-input" value="${item.qty || 1}">
+                            </td>
+                            <td style="width: 40px; text-align: center;">
+                                <button class="btn-delete" onclick="removeBouquetItem(${bIndex}, ${iIndex})">✕</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="bouquet-header">
+                        <input type="text" class="cell-input b-name-input" style="font-weight: bold; font-size: 1.1em; width: 60%;" value="${b.name || 'Новый букет'}">
+                        <span class="bouquet-cost">Себестоимость: 0.00 руб.</span>
+                    </div>
+                    <table style="width: 100%; margin-bottom: 8px;">
+                        <thead>
+                            <tr>
+                                <th>Материал</th>
+                                <th class="number-col">Кол-во (шт/м)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+                    <div class="btn-container">
+                        <button class="btn-add" style="padding: 6px 12px; font-size: 0.8em;" onclick="addBouquetItem(${bIndex})">+ Состав</button>
+                        <button class="btn-pink" onclick="deductBouquet(${bIndex})">🚀 Списать 1 букет со склада</button>
+                        <button class="btn-delete" style="margin-left: auto;" onclick="deleteBouquet(${bIndex})">Удалить букет</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            updateBouquetsCost();
+        }
+
+        window.deductBouquet = function(bIndex) {
+            const card = document.querySelectorAll('.bouquet-card')[bIndex];
+            const itemRows = card.querySelectorAll('.b-item-row');
+            
+            itemRows.forEach(row => {
+                const matName = row.querySelector('.b-mat-select').value;
+                const qtyToDeduct = parseFloat(row.querySelector('.b-qty-input').value) || 0;
+
+                // Находим строку на складе и увеличиваем списание
+                const tableRows = document.querySelectorAll('#tableBody tr');
+                tableRows.forEach(tRow => {
+                    const name = tRow.querySelector('.cell-name').value;
+                    if (name === matName) {
+                        const usedInput = tRow.querySelector('.cell-used-qty');
+                        const currentUsed = parseFloat(usedInput.value) || 0;
+                        usedInput.value = currentUsed + qtyToDeduct;
+                    }
+                });
+            });
+
+            calculateTotals();
+            saveToCloud();
+            alert('Материалы для букета успешно списаны со склада!');
+        };
+
+        window.addBouquet = function() {
+            const materials = getMaterialsList();
+            bouquetsData.push({
+                name: 'Новый букет',
+                items: [{ materialName: materials[0] || 'Новый материал', qty: 1 }]
+            });
+            renderBouquets();
+            saveToCloud();
+        };
+
+        window.deleteBouquet = function(bIndex) {
+            bouquetsData.splice(bIndex, 1);
+            renderBouquets();
+            saveToCloud();
+        };
+
+        window.addBouquetItem = function(bIndex) {
+            const materials = getMaterialsList();
+            bouquetsData[bIndex].items.push({ materialName: materials[0] || '', qty: 1 });
+            renderBouquets();
+            saveToCloud();
+        };
+
+        window.removeBouquetItem = function(bIndex, iIndex) {
+            bouquetsData[bIndex].items.splice(iIndex, 1);
+            renderBouquets();
+            saveToCloud();
+        };
+
+        function collectBouquetsState() {
+            const cards = document.querySelectorAll('.bouquet-card');
+            const result = [];
+            cards.forEach(card => {
+                const name = card.querySelector('.b-name-input').value;
+                const items = [];
+                card.querySelectorAll('.b-item-row').forEach(row => {
+                    items.push({
+                        materialName: row.querySelector('.b-mat-select').value,
+                        qty: parseFloat(row.querySelector('.b-qty-input').value) || 0
+                    });
+                });
+                result.push({ name, items });
+            });
+            return result;
+        }
+
         function saveToCloud() {
             const rows = document.querySelectorAll('#tableBody tr');
-            const data = [];
+            const materials = [];
             rows.forEach(row => {
-                data.push({
+                materials.push({
                     name: row.querySelector('.cell-name').value,
                     note: row.querySelector('.cell-note').value,
                     packPrice: row.querySelector('.cell-pack-price').value,
-                    qty: row.querySelector('.cell-qty').value
+                    qty: row.querySelector('.cell-qty').value,
+                    usedQty: row.querySelector('.cell-used-qty').value
                 });
             });
-            set(dbRef, data);
+
+            const currentBouquets = collectBouquetsState();
+
+            set(dbRef, {
+                materials: materials,
+                bouquets: currentBouquets
+            });
         }
 
         window.addRow = function() {
@@ -259,23 +550,27 @@
                 <td><input type="text" class="cell-input number-col cell-pack-price" value="0.00"></td>
                 <td><input type="text" class="cell-input number-col cell-qty" value="1"></td>
                 <td><span class="number-col auto-calc cell-unit-price">0.00</span></td>
-                <td><span class="number-col auto-calc cell-total">0.00</span></td>
+                <td><input type="text" class="cell-input number-col cell-used-qty" value="0"></td>
+                <td><span class="number-col auto-calc cell-stock-qty">0</span></td>
+                <td><span class="number-col auto-calc cell-stock-rub">0.00</span></td>
                 <td><button class="btn-delete" onclick="deleteRow(this)">✕</button></td>
             `;
             tbody.appendChild(newRow);
             calculateTotals();
+            renderBouquets();
             saveToCloud();
         };
 
         window.deleteRow = function(button) {
             button.parentElement.parentElement.remove();
             calculateTotals();
+            renderBouquets();
             saveToCloud();
         };
 
         window.resetToDefault = function() {
-            if (confirm("Очистить базу данных?")) {
-                set(dbRef, [{ name: 'Мыльные розы (бутоны)', note: 'Коробка красных роз', packPrice: '460.00', qty: '50' }]);
+            if (confirm("Сбросить базу данных до начального значения?")) {
+                set(dbRef, null);
             }
         };
     </script>
