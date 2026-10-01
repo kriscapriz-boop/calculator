@@ -6,15 +6,15 @@
     <title>Учет флориста 💐 | Мятный стиль</title>
     <style>
         :root {
-            --primary: #2e8b57;       /* Мятный / Шалфейный зеленый */
-            --primary-light: #e8f5e9; /* Светло-мятный фоновый */
-            --primary-hover: #236b43;
-            --accent: #48bb78;        /* Нежно-зеленый акцент */
-            --bg: #f2f8f5;            /* Нежный свежий фон */
+            --primary: #26a69a;       /* Мятный бирюзовый */
+            --primary-light: #e0f2f1; /* Светло-мятный фоновый */
+            --primary-hover: #00796b; /* Темно-мятный при наведении */
+            --accent: #4db6ac;        /* Мятный акцент */
+            --bg: #f4fbfb;            /* Нежный свежий фон */
             --card-bg: #ffffff;
-            --text: #2d3748;
-            --text-muted: #718096;
-            --border: #d2e3d8;
+            --text: #264653;
+            --text-muted: #607d8b;
+            --border: #b2dfdb;
         }
 
         body {
@@ -38,7 +38,7 @@
         }
 
         .tab-btn {
-            background: #e0f2e9;
+            background: var(--primary-light);
             color: var(--primary);
             border: 1px solid var(--border);
             padding: 12px 20px;
@@ -53,7 +53,7 @@
             background: var(--card-bg);
             border-bottom-color: transparent;
             color: var(--primary-hover);
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
+            box-shadow: 0 -2px 8px rgba(38, 166, 154, 0.08);
         }
 
         .tab-content {
@@ -61,7 +61,7 @@
             background: var(--card-bg);
             padding: 24px;
             border-radius: 0 12px 12px 12px;
-            box-shadow: 0 4px 15px rgba(46, 139, 87, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 166, 154, 0.08);
             border: 1px solid var(--border);
         }
 
@@ -138,7 +138,7 @@
 
         input:focus, select:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
+            box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.18);
         }
 
         td input {
@@ -146,7 +146,7 @@
         }
 
         .readonly-cell {
-            background-color: #f8faf9;
+            background-color: #f8fbfb;
             color: #4a5568;
             font-weight: 500;
         }
