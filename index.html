@@ -34,6 +34,8 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -53,6 +55,21 @@
             border-bottom-color: transparent;
             color: var(--primary-hover);
             box-shadow: 0 -2px 8px rgba(38, 166, 154, 0.08);
+        }
+
+        .status-badge {
+            margin-left: auto;
+            font-size: 13px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            background: var(--primary-light);
+            color: var(--primary-hover);
+            font-weight: 600;
+        }
+
+        .status-badge.offline {
+            background: #ffebee;
+            color: #c62828;
         }
 
         .tab-content {
@@ -219,9 +236,10 @@
 
 <div class="app-container">
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Дашборд</button>
-        <button class="tab-btn" onclick="switchTab('sales')">💐 Журнал продаж и Состав</button>
-        <button class="tab-btn" onclick="switchTab('inventory')">📦 Склад и Списание</button>
+        <button class="tab-btn active" onclick="switchTab('dashboard', event)">📊 Дашборд</button>
+        <button class="tab-btn" onclick="switchTab('sales', event)">💐 Журнал продаж и Состав</button>
+        <button class="tab-btn" onclick="switchTab('inventory', event)">📦 Склад и Списание</button>
+        <div id="status" class="status-badge">⏳ Подключение к облаку...</div>
     </div>
 
     <!-- Вкладка 1: Дашборд -->
@@ -320,7 +338,26 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCHCvoQNVlVXrFVEDBE61JrZrX9p0kW0Ac",
+        authDomain: "continue-2daa0.firebaseapp.com",
+        databaseURL: "https://continue-2daa0-default-rtdb.firebaseio.com",
+        projectId: "continue-2daa0",
+        storageBucket: "continue-2daa0.firebasestorage.app",
+        messagingSenderId: "489888561978",
+        appId: "1:489888561978:web:3498c007cde577b0ba6e03",
+        measurementId: "G-857F5KS3EC"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'florist_data_v1');
+
+    // Стартовый набор (используется только если в базе ещё ничего нет)
     const initialItems = [
         { name: 'Мыльные розы (бутоны)', note: '', packPrice: '460.00', totalQty: '500', qty: '50', markup: '100', usedQty: '0' },
         { name: 'Упаковочная бумага', note: 'прозрачная', packPrice: '150.00', totalQty: '10', qty: '10', markup: '100', usedQty: '0' },
@@ -349,18 +386,69 @@
         { name: 'Гортензия искусственная', note: 'Фиолетовая', packPrice: '70.00', totalQty: '7', qty: '7', markup: '100', usedQty: '0' }
     ];
 
-    let items = JSON.parse(JSON.stringify(initialItems));
-    const salesHistory = [];
+    let items = [];
+    let salesHistory = [];
     let currentQuery = '';
+    let isEditing = false;
+    let saveTimeout = null;
+    let initialLoadDone = false;
 
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        
-        event.target.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
+    // ================= Firebase: подключение и статус =================
+    const connectedRef = ref(db, ".info/connected");
+    onValue(connectedRef, (snap) => {
+        const statusEl = document.getElementById('status');
+        if (snap.val() === true) {
+            statusEl.textContent = '🟢 Облако подключено';
+            statusEl.classList.remove('offline');
+        } else {
+            statusEl.textContent = '🔴 Нет связи с облаком';
+            statusEl.classList.add('offline');
+        }
+    });
+
+    // ================= Firebase: загрузка данных =================
+    onValue(dbRef, (snapshot) => {
+        // Пока пользователь печатает — не перезаписываем его изменения
+        if (isEditing) return;
+
+        const data = snapshot.val();
+        if (data) {
+            items = data.items || initialItems;
+            salesHistory = data.salesHistory || [];
+        } else {
+            // В базе пусто — заливаем стартовый набор
+            items = JSON.parse(JSON.stringify(initialItems));
+            salesHistory = [];
+            set(dbRef, { items, salesHistory });
+        }
+        initialLoadDone = true;
+        renderInventory();
+        renderSalesTable();
+    });
+
+    // ================= Firebase: сохранение данных =================
+    function saveToCloud() {
+        if (!initialLoadDone) return;
+        set(dbRef, { items, salesHistory });
     }
 
+    function scheduleSave() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            isEditing = false;
+            saveToCloud();
+        }, 600);
+    }
+
+    // ================= Переключение вкладок =================
+    window.switchTab = function(tabId, ev) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        ev.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    };
+
+    // ================= Отрисовка таблицы склада =================
     function renderInventory(data = null) {
         const tbody = document.getElementById('inventoryTableBody');
         tbody.innerHTML = '';
@@ -406,13 +494,11 @@
         const usedQty = parseFloat(item.usedQty) || 0;
         const markup = parseFloat(item.markup) || 0;
 
-        // Кол-во пачек = всего штук / штук в пачке
         const packsCount = qty > 0 ? (totalQty / qty) : 0;
         const unitPrice = qty > 0 ? (packPrice / qty) : 0;
         const retailPrice = unitPrice * (1 + markup / 100);
         const rowCost = unitPrice * usedQty;
 
-        // Полные упаковки + остаток (для подсказки)
         const fullPacks = qty > 0 ? Math.floor(totalQty / qty) : 0;
         const remainder = qty > 0 ? (totalQty % qty) : 0;
 
@@ -448,7 +534,7 @@
         });
     }
 
-    function addRecipeRow() {
+    window.addRecipeRow = function() {
         const container = document.getElementById('recipe-items');
         const row = document.createElement('div');
         row.className = 'form-row recipe-row';
@@ -458,9 +544,9 @@
         `;
         container.appendChild(row);
         populateSelectOptions();
-    }
+    };
 
-    function addSale() {
+    window.addSale = function() {
         const saleName = document.getElementById('sale-name').value || 'Букет';
         const salePrice = parseFloat(document.getElementById('sale-price').value) || 0;
 
@@ -495,7 +581,8 @@
 
         renderSalesTable();
         applySearch();
-        
+        saveToCloud();
+
         document.getElementById('sale-name').value = '';
         document.getElementById('sale-price').value = '';
         document.getElementById('recipe-items').innerHTML = `
@@ -505,11 +592,16 @@
             </div>
         `;
         populateSelectOptions();
-    }
+    };
 
     function renderSalesTable() {
         const tbody = document.getElementById('salesTableBody');
         tbody.innerHTML = '';
+
+        if (salesHistory.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">История продаж пока пуста</td></tr>';
+            return;
+        }
 
         salesHistory.forEach(sale => {
             const tr = document.createElement('tr');
@@ -543,7 +635,7 @@
         document.getElementById('dash-inventory').textContent = totalInventoryValue.toFixed(2) + ' руб.';
     }
 
-    function addNewItem() {
+    window.addNewItem = function() {
         items.push({
             name: 'Новая позиция',
             note: '',
@@ -555,6 +647,7 @@
         });
         applySearch();
         updateDashboard();
+        saveToCloud();
 
         const rows = document.querySelectorAll('#inventoryTableBody tr');
         if (rows.length > 0) {
@@ -565,14 +658,15 @@
                 input.select();
             }
         }
-    }
+    };
 
-    function deleteItem(index) {
+    window.deleteItem = function(index) {
         if (!confirm(`Удалить позицию "${items[index].name}"?`)) return;
         items.splice(index, 1);
         applySearch();
         updateDashboard();
-    }
+        saveToCloud();
+    };
 
     function applySearch() {
         if (!currentQuery) {
@@ -591,8 +685,10 @@
         const field = e.target.getAttribute('data-field');
         if (index === null || !field) return;
 
+        isEditing = true;
         items[index][field] = e.target.value;
         recalcRow(parseInt(index));
+        scheduleSave();
     });
 
     // CHANGE: когда поле теряет фокус — делаем полный пересчёт (селекты, дашборд)
@@ -606,8 +702,6 @@
         currentQuery = e.target.value.toLowerCase();
         applySearch();
     });
-
-    renderInventory();
 </script>
 
 </body>
